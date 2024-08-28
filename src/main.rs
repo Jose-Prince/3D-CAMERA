@@ -55,7 +55,7 @@ fn main() {
         material: fur,
     };
 
-    let objects = vec![inside_right_ear,head,right_ear, left_ear];
+    let objects = vec![head,right_ear, left_ear, inside_right_ear];
 
     render(&mut framebuffer, &objects);
 
