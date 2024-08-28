@@ -1,11 +1,14 @@
 // Render.rs
 
-use crate::fileReader::load_maze;
 use crate::framebuffer::Framebuffer;
 use crate::color::Color;
+use crate::intersect::Intersect;
+use crate::intersect::RayIntersect;
+use crate::Sphere;
+use nalgebra_glm::{Vec3, normalize};
 use std::io::Result;
 
-pub fn render(framebuffer: &mut Framebuffer, objects: &[Object]) {
+pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere]) {
     let width = framebuffer.get_width() as f32;
     let height = framebuffer.get_height() as f32;
     let aspect_ratio = width/height;
@@ -13,7 +16,7 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Object]) {
     for y in 0..framebuffer.get_height() {
         for x in 0..framebuffer.get_width() {
             //Map the pixel coordinate to screen space [-1,1]
-            let scren_x = (2.0 * x as f32)/ width -1.0;
+            let screen_x = (2.0 * x as f32)/ width -1.0;
             let screen_y = -(2.0 * y as f32)/ height + 1.0;
 
             //Adjust for aspect ratio
@@ -27,7 +30,7 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Object]) {
 
             //Draw the pixel on screen with the returned color
             framebuffer.set_current_color(pixel_color);
-            framebuffer.point(x,y);
+            framebuffer.point(x.try_into().unwrap(),y.try_into().unwrap());
         }
     }
 }

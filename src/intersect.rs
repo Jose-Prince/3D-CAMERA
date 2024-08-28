@@ -1,6 +1,6 @@
 // intersect.rs
 
-use nalgebra_glm:Vec3;
+use nalgebra_glm::Vec3;
 use crate::color::Color;
 use crate::material::Material;
 
@@ -23,11 +23,9 @@ impl Intersect {
 
     pub fn empty() -> Self {
         Intersect {
-            distance 0.0,
+            distance: 0.0,  // Corregido
             is_intersecting: false,
-            material: Material{
-                diffuse: Color::new(0,0,0),
-            }
+            material: Material::black(),  // Usa el método `black` para simplificar
         }
     }
 }

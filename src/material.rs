@@ -1,4 +1,4 @@
-// material.rs
+// material
 
 use crate::color::Color;
 

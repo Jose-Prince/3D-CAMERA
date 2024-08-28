@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Color {
     r: u8,
     g: u8,
