@@ -1,3 +1,5 @@
+// bmp.rs
+
 use std::fs::File;
 use std::io::{Write, BufWriter, Result};
 

@@ -1,3 +1,5 @@
+// line.rs
+
 use crate::framebuffer::Framebuffer;
 use nalgebra_glm as glm; // Asumiendo que nalgebra-glm está correctamente importado y configurado
 

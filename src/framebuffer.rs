@@ -1,3 +1,5 @@
+// framebuffer.rs
+
 use crate::bmp::write_bmp_file;
 use crate::color::Color;
 
