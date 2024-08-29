@@ -41,6 +41,14 @@ impl Color {
     pub fn to_hex(&self) -> u32 {
         ((self.r as u32) << 16) | ((self.g as u32) << 8) | (self.b as u32)
     }
+
+    pub fn to_f32(&self) -> f32 {
+        let r = self.r as f32 / 255.0;
+        let g = self.g as f32 / 255.0;
+        let b = self.b as f32 / 255.0;
+
+        (r + g + b)
+    }
 }
 
 impl fmt::Display for Color {

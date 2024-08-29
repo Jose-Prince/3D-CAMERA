@@ -16,6 +16,7 @@ impl RayIntersect for Sphere {
         let a = dot(ray_direction, ray_direction);
         let b = 2.0 * dot(&oc, ray_direction);
         let c = dot(&oc, &oc) - self.radius * self.radius;
+
         let discriminant = b * b - 4.0 * a * c;
 
         if discriminant < 0.0 {

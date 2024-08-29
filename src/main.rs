@@ -6,12 +6,14 @@ mod ray_intersect;
 mod render;
 mod bmp;
 mod camera;
+mod light;
 
 use framebuffer::Framebuffer;
 use color::Color;
 use material::Material;
 use ray_intersect::Sphere;
 use render::render;
+use light::Light;
 use nalgebra_glm::{Vec3, vec3};
 use minifb::{Key, Window, WindowOptions};
 use camera::Camera;
@@ -97,6 +99,12 @@ fn main() {
         up: vec3(0.0, 1.0, 0.0),      // Vector "up"
     };
 
+    let light = Light::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        Color::new(255,255,255),
+        1.0,
+    );
+
     let mut window = Window::new(
         "3D Camera",
         width,
@@ -125,7 +133,7 @@ fn main() {
         }
 
         // Renderiza la escena con la posición actual de la cámara
-        render(&mut framebuffer, &objects, &camera);
+        render(&mut framebuffer, &objects, &camera, &light);
 
         window.update_with_buffer(framebuffer.get_buffer(), width, height).unwrap();
     }

@@ -3,11 +3,14 @@ use crate::color::Color;
 use crate::intersect::Intersect;
 use crate::ray_intersect::Sphere;
 use crate::intersect::RayIntersect;
+use crate::light::Light;
 use nalgebra_glm::{Vec3, normalize};
 use std::f32;
+use std::ops::Add;
+use std::ops::Mul;
 use crate::camera::Camera;
 
-pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera) {
+pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera, light: &Light) {
     let width = framebuffer.get_width() as f32;
     let height = framebuffer.get_height() as f32;
     let aspect_ratio = width / height;
@@ -30,7 +33,7 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera
             let ray_origin = camera.eye; // Usar la posición de la cámara como origen del rayo
 
             // Lanzar el rayo y obtener el color del píxel
-            let (pixel_color, z) = cast_ray(&ray_origin, &ray_direction, objects);
+            let (pixel_color, z) = cast_ray(&ray_origin, &ray_direction, objects, light);
 
             // Convertir las coordenadas de píxeles en un índice de z-buffer
             let pixel_index = (y as usize * width as usize) + (x as usize);
@@ -45,7 +48,7 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera
     }
 }
 
-pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Sphere]) -> (Color, f32) {
+pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Sphere], light: &Light) -> (Color, f32) {
     let mut intersect = Intersect::empty();
     let mut zbuffer = f32::INFINITY;
 
@@ -58,7 +61,20 @@ pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Sphere]) -> 
     }
 
     if intersect.is_intersecting {
-        (intersect.material.diffuse, intersect.distance)
+        let mut color = Color::new(0,0,0);
+        let normal = intersect.normal;
+
+        let light_dir = (light.position - intersect.point).normalize();
+
+        let diffuse_intensity = normal.dot(&light_dir).max(0.0);
+        let diffuse = intersect.material.diffuse * diffuse_intensity * light.intensity;
+
+        color = color.add(diffuse);
+
+        let material_color = intersect.material.diffuse;
+        color = color.mul(material_color.to_f32());
+
+        (color, intersect.distance)
     } else {
         (Color::new(4, 12, 36), f32::INFINITY)
     }
