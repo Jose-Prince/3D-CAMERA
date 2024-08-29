@@ -1,5 +1,3 @@
-// render.rs
-
 use crate::framebuffer::Framebuffer;
 use crate::color::Color;
 use crate::intersect::Intersect;
@@ -7,7 +5,7 @@ use crate::ray_intersect::Sphere;
 use crate::intersect::RayIntersect;
 use nalgebra_glm::{Vec3, normalize};
 use std::f32;
-use crate::camera::Camera;  // Asegúrate de tener el módulo Camera incluido
+use crate::camera::Camera;
 
 pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera) {
     let width = framebuffer.get_width() as f32;
@@ -26,8 +24,9 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera
             // Ajustar la relación de aspecto
             let screen_x = screen_x * aspect_ratio;
 
-            // Calcular la dirección del rayo para este píxel, teniendo en cuenta la posición de la cámara
-            let ray_direction = normalize(&Vec3::new(screen_x, screen_y, -1.0));
+            // Calcular la dirección del rayo para este píxel
+            let ray_camera_space = Vec3::new(screen_x, screen_y, -1.0).normalize();
+            let ray_direction = camera.basis_change(&ray_camera_space);
             let ray_origin = camera.eye; // Usar la posición de la cámara como origen del rayo
 
             // Lanzar el rayo y obtener el color del píxel

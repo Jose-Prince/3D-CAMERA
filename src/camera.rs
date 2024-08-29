@@ -2,9 +2,9 @@ use nalgebra_glm::{Vec3, normalize, cross, magnitude};
 use std::f32::consts::PI;
 
 pub struct Camera {
-    pub eye: Vec3, // Camera position in world space
-    pub center: Vec3, // Point the camera is looking at
-    pub up: Vec3, // Up vector
+    pub eye: Vec3,  // Posición de la cámara en el espacio mundial
+    pub center: Vec3, // Punto que la cámara está mirando
+    pub up: Vec3,  // Vector hacia arriba
 }
 
 impl Camera {
@@ -13,12 +13,10 @@ impl Camera {
         let right = forward.cross(&self.up).normalize();
         let up = right.cross(&forward).normalize();
 
-        let rotated = 
-        vector.x * right + 
-        vector.y * up -
-        vector.z * forward;
+        // Convertir la dirección del rayo del espacio de la cámara al espacio del mundo
+        let rotated = vector.x * right + vector.y * up - vector.z * forward;
 
-        rotated.normalize()
+        rotated
     }
 
     pub fn orbit(&mut self, delta_yaw: f32, delta_pitch: f32) {
