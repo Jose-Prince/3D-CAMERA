@@ -109,17 +109,21 @@ fn main() {
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         framebuffer.clear();
-        if window.is_key_down(Key::W) {
-            camera.eye.z -= 0.1;  // Mover la cámara hacia adelante
-        }
-        if window.is_key_down(Key::S) {
-            camera.eye.z += 0.1;  // Mover la cámara hacia atrás
-        }
+        
+        // Rotación de la cámara
         if window.is_key_down(Key::A) {
-            camera.eye.x -= 0.1;  // Mover la cámara hacia la izquierda
+            camera.orbit(0.05, 0.0);  // Rotar en el eje Y (yaw) hacia la izquierda
+            camera.center = (90.0, 0.0, 0.0);
         }
         if window.is_key_down(Key::D) {
-            camera.eye.x += 0.1;  // Mover la cámara hacia la derecha
+            camera.orbit(-0.05, 0.0);  // Rotar en el eje Y (yaw) hacia la derecha
+            camera.center = (-90.0, 0.0, 0.0);
+        }
+        if window.is_key_down(Key::W) {
+            camera.orbit(0.0, 0.05);  // Rotar en el eje X (pitch) hacia arriba
+        }
+        if window.is_key_down(Key::S) {
+            camera.orbit(0.0, -0.05);  // Rotar en el eje X (pitch) hacia abajo
         }
 
         // Renderiza la escena con la posición actual de la cámara
