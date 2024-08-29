@@ -7,8 +7,9 @@ use crate::ray_intersect::Sphere;
 use crate::intersect::RayIntersect;
 use nalgebra_glm::{Vec3, normalize};
 use std::f32;
+use crate::camera::Camera;  // Asegúrate de tener el módulo Camera incluido
 
-pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere]) {
+pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera) {
     let width = framebuffer.get_width() as f32;
     let height = framebuffer.get_height() as f32;
     let aspect_ratio = width / height;
@@ -25,11 +26,12 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere]) {
             // Ajustar la relación de aspecto
             let screen_x = screen_x * aspect_ratio;
 
-            // Calcular la dirección del rayo para este píxel
+            // Calcular la dirección del rayo para este píxel, teniendo en cuenta la posición de la cámara
             let ray_direction = normalize(&Vec3::new(screen_x, screen_y, -1.0));
+            let ray_origin = camera.eye; // Usar la posición de la cámara como origen del rayo
 
             // Lanzar el rayo y obtener el color del píxel
-            let (pixel_color, z) = cast_ray(&Vec3::new(0.0, 0.0, 0.0), &ray_direction, objects);
+            let (pixel_color, z) = cast_ray(&ray_origin, &ray_direction, objects);
 
             // Convertir las coordenadas de píxeles en un índice de z-buffer
             let pixel_index = (y as usize * width as usize) + (x as usize);

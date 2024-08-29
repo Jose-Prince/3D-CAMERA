@@ -1,5 +1,3 @@
-// main.rs
-
 mod framebuffer;
 mod color;
 mod intersect;
@@ -7,15 +5,16 @@ mod material;
 mod ray_intersect;
 mod render;
 mod bmp;
-
+mod camera;
 
 use framebuffer::Framebuffer;
 use color::Color;
 use material::Material;
 use ray_intersect::Sphere;
-use render::{render};
-use nalgebra_glm::Vec3;
+use render::render;
+use nalgebra_glm::{Vec3, vec3};
 use minifb::{Key, Window, WindowOptions};
+use camera::Camera;
 
 fn main() {
     let width = 800;  // Ajusta el tamaño del framebuffer según sea necesario
@@ -92,7 +91,11 @@ fn main() {
         eye_l,
     ];
 
-    render(&mut framebuffer, &objects);
+    let mut camera = Camera {
+        eye: vec3(0.0, 0.0, 10.0),    // Posición inicial de la cámara
+        center: vec3(0.0, 0.0, 0.0),  // Punto que la cámara está mirando
+        up: vec3(0.0, 1.0, 0.0),      // Vector "up"
+    };
 
     let mut window = Window::new(
         "3D Camera",
@@ -105,7 +108,23 @@ fn main() {
     });
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
+        framebuffer.clear();
+        if window.is_key_down(Key::W) {
+            camera.eye.z -= 0.1;  // Mover la cámara hacia adelante
+        }
+        if window.is_key_down(Key::S) {
+            camera.eye.z += 0.1;  // Mover la cámara hacia atrás
+        }
+        if window.is_key_down(Key::A) {
+            camera.eye.x -= 0.1;  // Mover la cámara hacia la izquierda
+        }
+        if window.is_key_down(Key::D) {
+            camera.eye.x += 0.1;  // Mover la cámara hacia la derecha
+        }
+
+        // Renderiza la escena con la posición actual de la cámara
+        render(&mut framebuffer, &objects, &camera);
+
         window.update_with_buffer(framebuffer.get_buffer(), width, height).unwrap();
     }
-
 }
