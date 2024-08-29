@@ -61,21 +61,56 @@ pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Sphere], lig
     }
 
     if intersect.is_intersecting {
-        let mut color = Color::new(0,0,0);
         let normal = intersect.normal;
+        let mut color = Color::new(0, 0, 0);
 
         let light_dir = (light.position - intersect.point).normalize();
+        let view_dir = (ray_origin - intersect.point).normalize();
+        let reflect_dir = reflect(&-light_dir, &intersect.normal);
 
+        // Calcular la intensidad de la sombra
+        let shadow_intensity = cast_shadow(&intersect, light, objects);
+        let light_intensity = light.intensity * (1.0 - shadow_intensity);
+
+        // Intensidad difusa
         let diffuse_intensity = normal.dot(&light_dir).max(0.0);
-        let diffuse = intersect.material.diffuse * diffuse_intensity * light.intensity;
+        let diffuse = intersect.material.diffuse * intersect.material.albedo[0] * diffuse_intensity * light_intensity;
 
+        // Intensidad especular
+        let specular_intensity = view_dir.dot(&reflect_dir).max(0.0).powf(intersect.material.specular);
+        let specular = light.color * intersect.material.albedo[1] * specular_intensity * light_intensity;
+
+        // Ajustar el color con las intensidades calculadas
         color = color.add(diffuse);
-
-        let material_color = intersect.material.diffuse;
-        color = color.mul(material_color.to_f32());
+        color = color.add(specular);
 
         (color, intersect.distance)
     } else {
-        (Color::new(4, 12, 36), f32::INFINITY)
+        (Color::new(4, 12, 36), f32::INFINITY) // Color de fondo
     }
+}
+
+fn reflect(incident: &Vec3, normal: &Vec3) -> Vec3 {
+    incident - 2.0 * incident.dot(normal) * normal
+}
+
+fn cast_shadow(
+    intersect: &Intersect,
+    light: &Light,
+    objects: &[Sphere],
+) -> f32 {
+    let light_dir = (light.position - intersect.point).normalize();
+    let shadow_ray_origin = intersect.point + light_dir * 1e-3; // Mover ligeramente el origen para evitar "shadow acne"
+    let mut shadow_intensity: f32 = 0.0;
+    let mut zbuffer = f32::INFINITY;
+
+    for object in objects {
+        let shadow_intersect = object.ray_intersect(&shadow_ray_origin, &light_dir);
+        if shadow_intersect.is_intersecting && shadow_intersect.distance < zbuffer {
+            zbuffer = shadow_intersect.distance;
+            shadow_intensity += 0.5; // Suma la intensidad de sombra para cada intersección
+        }
+    }
+
+    shadow_intensity.clamp(0.0, 1.0) // Limitar la intensidad entre 0 y 1
 }

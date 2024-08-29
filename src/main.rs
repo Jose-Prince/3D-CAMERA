@@ -23,10 +23,10 @@ fn main() {
     let height = 800; // Ajusta el tamaño del framebuffer según sea necesario
     let mut framebuffer = Framebuffer::new(width, height);
 
-    let fur = Material::new(color::Color::new(255,255,255));
-    let skin = Material::new(color::Color::new(250,175,188));
-    let mouth_m = Material::new(color::Color::new(240,240,240));
-    let black = Material::new(color::Color::new(0,0,0));
+    let fur = Material::new(color::Color::new(255,255,255), 0.0, [0.6, 0.3]);
+    let skin = Material::new(color::Color::new(250,175,188), 100.0, [0.6, 0.3]);
+    let mouth_m = Material::new(color::Color::new(240,240,240), 0.3, [0.6, 0.3]);
+    let black = Material::new(color::Color::new(0,0,0), 0.0, [0.6, 0.3]);
     
     let right_ear: Sphere = Sphere {
         center: Vec3::new(1.7,2.0,-7.0),
