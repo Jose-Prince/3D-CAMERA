@@ -48,7 +48,12 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera
     }
 }
 
-pub fn cast_ray(ray_origin: &Vec3, ray_direction: &Vec3, objects: &[Sphere], light: &Light) -> (Color, f32) {
+pub fn cast_ray(
+    ray_origin: &Vec3, 
+    ray_direction: &Vec3, 
+    objects: &[Sphere], 
+    light: &Light,
+) -> (Color, f32) {
     let mut intersect = Intersect::empty();
     let mut zbuffer = f32::INFINITY;
 

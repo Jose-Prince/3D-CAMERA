@@ -49,6 +49,13 @@ impl Color {
 
         (r + g + b)
     }
+
+    pub fn lerp(&self, other: &Color, t: f32) -> Color {
+        let r = (self.r as f32 * (1.0 - t) + other.r as f32 * t) as u8;
+        let g = (self.g as f32 * (1.0 - t) + other.g as f32 * t) as u8;
+        let b = (self.b as f32 * (1.0 - t) + other.b as f32 * t) as u8;
+        Color::new(r.into(), g.into(), b.into())
+    }
 }
 
 impl fmt::Display for Color {

@@ -100,7 +100,7 @@ fn main() {
     };
 
     let light = Light::new(
-        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(5.0, 5.0, 5.0),
         Color::new(255,255,255),
         1.0,
     );
@@ -117,6 +117,8 @@ fn main() {
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         framebuffer.clear();
+        
+        framebuffer.draw_background(&camera);
         
         // Rotación de la cámara
         if window.is_key_down(Key::A) {

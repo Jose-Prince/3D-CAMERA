@@ -2,6 +2,9 @@
 
 use crate::bmp::write_bmp_file;
 use crate::color::Color;
+use crate::camera::Camera;
+
+use std::f32::consts::PI;
 
 pub struct Framebuffer {
     width: usize,
@@ -96,6 +99,35 @@ impl Framebuffer {
                         self.point(x, y);
                     }
                 }
+            }
+        }
+    }
+
+    pub fn draw_background(&mut self, camera: &Camera) {
+        let sky_color = Color::new(135, 206, 235);
+        let ground_color = Color::new(0, 0, 128);
+
+        let pitch = camera.get_pitch();
+        let yaw = camera.get_yaw();
+
+        let horizon_height = ((self.height as f32 / 2.0) * (1.0 + pitch / (PI / 2.0))) as isize;
+
+        for y in 0..self.height as isize {
+            let t = if y < horizon_height {
+                y as f32 / horizon_height as f32
+            } else {
+                (y - horizon_height) as f32 / (self.height as isize - horizon_height) as f32
+            };
+
+            let blended_color = if y < horizon_height {
+                sky_color.lerp(&ground_color, t)
+            } else {
+                ground_color.lerp(&sky_color, t)
+            };
+
+            self.set_current_color(blended_color);
+            for x in 0..self.width {
+                self.point(x as isize, y);
             }
         }
     }

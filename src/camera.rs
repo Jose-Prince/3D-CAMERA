@@ -44,4 +44,15 @@ impl Camera {
 
         self.eye = new_eye;
     }
+
+    pub fn get_yaw(&self) -> f32 {
+        let direction = self.center - self.eye;
+        direction.z.atan2(direction.x)
+    }
+
+    pub fn get_pitch(&self) -> f32 {
+        let direction = self.center - self.eye;
+        let radius_xz = (direction.x * direction.x + direction.z *direction.z).sqrt();
+        (-direction.y).atan2(radius_xz)
+    }
 }
