@@ -7,16 +7,20 @@ mod render;
 mod bmp;
 mod camera;
 mod light;
+mod figures;
 
 use framebuffer::Framebuffer;
 use color::Color;
 use material::Material;
-use ray_intersect::Sphere;
+use figures::Sphere;
+use figures::Cube;
 use render::render;
 use light::Light;
 use nalgebra_glm::{Vec3, vec3};
 use minifb::{Key, Window, WindowOptions};
 use camera::Camera;
+
+use crate::ray_intersect::Renderable;
 
 fn main() {
     let width = 800;  // Ajusta el tamaño del framebuffer según sea necesario
@@ -82,15 +86,22 @@ fn main() {
         material: black,
     };
 
-    let objects = vec![
-        head,right_ear, 
-        left_ear, 
-        inside_right_ear, 
-        inside_left_ear,
-        mouth,
-        nose,
-        eye_r,
-        eye_l,
+    let cube_1: Cube = Cube {
+        center: Vec3::new(-0.2,0.3,-2.0),
+        length: 5,
+        material: black,
+    };
+
+    let objects: Vec<&dyn Renderable> = vec![
+        &head,&right_ear, 
+        &left_ear, 
+        &inside_right_ear, 
+        &inside_left_ear,
+        &mouth,
+        &nose,
+        &eye_r,
+        &eye_l,
+        &cube_1,
     ];
 
     let mut camera = Camera {

@@ -1,7 +1,7 @@
 use crate::framebuffer::Framebuffer;
 use crate::color::Color;
 use crate::intersect::Intersect;
-use crate::ray_intersect::Sphere;
+use crate::figures::Sphere;
 use crate::intersect::RayIntersect;
 use crate::light::Light;
 use nalgebra_glm::{Vec3, normalize};
@@ -9,8 +9,9 @@ use std::f32;
 use std::ops::Add;
 use std::ops::Mul;
 use crate::camera::Camera;
+use crate::ray_intersect::Renderable;
 
-pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera, light: &Light) {
+pub fn render(framebuffer: &mut Framebuffer, objects: &[&dyn Renderable], camera: &Camera, light: &Light) {
     let width = framebuffer.get_width() as f32;
     let height = framebuffer.get_height() as f32;
     let aspect_ratio = width / height;
@@ -51,7 +52,7 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera
 fn cast_ray(
     ray_origin: &Vec3, 
     ray_direction: &Vec3, 
-    objects: &[Sphere], 
+    objects: &[&dyn Renderable], 
     light: &Light,
     depth: u32
 ) -> (Color, f32) {
@@ -119,7 +120,7 @@ fn reflect(incident: &Vec3, normal: &Vec3) -> Vec3 {
 fn cast_shadow(
     intersect: &Intersect,
     light: &Light,
-    objects: &[Sphere],
+    objects: &[&dyn Renderable],
 ) -> f32 {
     let light_dir = (light.position - intersect.point).normalize();
     let shadow_ray_origin = intersect.point + light_dir * 1e-3; // Mover ligeramente el origen para evitar "shadow acne"
@@ -140,7 +141,7 @@ fn cast_shadow(
 fn cast_ray_with_refraction(
     intersect: &Intersect, 
     ray_direction: &Vec3, 
-    objects: &[Sphere], 
+    objects: &[&dyn Renderable], 
     light: &Light, 
     depth: u32
 ) -> Color {
