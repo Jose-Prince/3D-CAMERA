@@ -55,4 +55,16 @@ impl Camera {
         let radius_xz = (direction.x * direction.x + direction.z *direction.z).sqrt();
         (-direction.y).atan2(radius_xz)
     }
+
+    pub fn zoom (&mut self, delta: f32) {
+        let direction = (self.eye - self.center).normalize();
+
+        let new_eye = self.eye + direction * delta;
+
+        //Set limit for camera zoom
+        let min_distance = 0.1;
+        if (new_eye - self.center).magnitude() > min_distance {
+            self.eye = new_eye;
+        }
+    }
 }
