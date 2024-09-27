@@ -32,8 +32,8 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera
             let ray_direction = camera.basis_change(&ray_camera_space);
             let ray_origin = camera.eye; // Usar la posición de la cámara como origen del rayo
 
-            // Lanzar el rayo y obtener el color del píxel
-            let (pixel_color, z) = cast_ray(&ray_origin, &ray_direction, objects, light);
+            // Lanzar el rayo y obtener el color del píxel, incluyendo reflejos y refracciones
+            let (pixel_color, z) = cast_ray(&ray_origin, &ray_direction, objects, light, 5); // Usar profundidad de 5
 
             // Convertir las coordenadas de píxeles en un índice de z-buffer
             let pixel_index = (y as usize * width as usize) + (x as usize);
@@ -48,12 +48,17 @@ pub fn render(framebuffer: &mut Framebuffer, objects: &[Sphere], camera: &Camera
     }
 }
 
-pub fn cast_ray(
+fn cast_ray(
     ray_origin: &Vec3, 
     ray_direction: &Vec3, 
     objects: &[Sphere], 
     light: &Light,
+    depth: u32
 ) -> (Color, f32) {
+    if depth == 0 {
+        return (Color::new(0, 0, 0), f32::INFINITY); // Limitar la profundidad de las reflexiones y refracciones
+    }    
+
     let mut intersect = Intersect::empty();
     let mut zbuffer = f32::INFINITY;
 
@@ -89,6 +94,18 @@ pub fn cast_ray(
         color = color.add(diffuse);
         color = color.add(specular);
 
+        // Reflexión
+        if intersect.material.albedo[2] > 0.0 {
+            let reflection_color = cast_ray(&intersect.point, &reflect(&ray_direction, &normal), objects, light, depth - 1).0;
+            color = color.add(reflection_color.mul(intersect.material.albedo[2]));
+        }
+
+        // Refracción
+        if intersect.material.albedo[3] > 0.0 {
+            let refraction_color = cast_ray_with_refraction(&intersect, &ray_direction, objects, light, depth - 1);
+            color = color.add(refraction_color.mul(intersect.material.albedo[3]));
+        }
+
         (color, intersect.distance)
     } else {
         (Color::new(4, 12, 36), f32::INFINITY) // Color de fondo
@@ -118,4 +135,35 @@ fn cast_shadow(
     }
 
     shadow_intensity.clamp(0.0, 1.0) // Limitar la intensidad entre 0 y 1
+}
+
+fn cast_ray_with_refraction(
+    intersect: &Intersect, 
+    ray_direction: &Vec3, 
+    objects: &[Sphere], 
+    light: &Light, 
+    depth: u32
+) -> Color {
+
+    if depth == 0 {
+        return Color::new(0, 0, 0); // Limitar la profundidad
+    }
+
+    let normal = intersect.normal;
+    let n1 = 1.0; // Índice de refracción del aire
+    let n2 = intersect.material.refractive_index; // Índice del material
+
+    // Calcular el ángulo de refracción usando la Ley de Snell
+    let cos_i = -ray_direction.dot(&normal);
+    let sin_t2 = (n1 / n2) * (n1 / n2) * (1.0 - cos_i * cos_i);
+
+    if sin_t2 > 1.0 {
+        // Reflexión total interna
+        return cast_ray(&intersect.point, &reflect(ray_direction, &normal), objects, light, depth - 1).0;
+    } else {
+        // Refracción
+        let cos_t = (1.0 - sin_t2).sqrt();
+        let refracted_direction = (n1 / n2) * ray_direction + (n1 / n2 * cos_i - cos_t) * normal;
+        return cast_ray(&intersect.point, &refracted_direction, objects, light, depth - 1).0;
+    }    
 }
