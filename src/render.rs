@@ -4,6 +4,7 @@ use crate::intersect::Intersect;
 use crate::figures::Sphere;
 use crate::intersect::RayIntersect;
 use crate::light::Light;
+use crate::texture::Texture;
 use nalgebra_glm::{Vec3, normalize};
 use std::f32;
 use std::ops::Add;
@@ -73,7 +74,14 @@ fn cast_ray(
 
     if intersect.is_intersecting {
         let normal = intersect.normal;
-        let mut color = Color::new(0, 0, 0);
+        
+        // Manejar la textura y proporcionar un valor por defecto
+        let texture_color = intersect.material.texture
+            .as_ref() // Convertir a Option<&Texture>
+            .map(|texture| sample_texture(texture, intersect.uv)) // Llamar a sample_texture si hay textura
+            .unwrap_or(Color::new(1, 1, 1)); // Color por defecto (blanco) si no hay textura
+        
+        let mut color = texture_color; // Inicializar color con la textura
 
         let light_dir = (light.position - intersect.point).normalize();
         let view_dir = (ray_origin - intersect.point).normalize();
@@ -85,15 +93,14 @@ fn cast_ray(
 
         // Intensidad difusa
         let diffuse_intensity = normal.dot(&light_dir).max(0.0);
-        let diffuse = intersect.material.diffuse * intersect.material.albedo[0] * diffuse_intensity * light_intensity;
+        let diffuse = intersect.material.diffuse * diffuse_intensity * light_intensity;
 
         // Intensidad especular
         let specular_intensity = view_dir.dot(&reflect_dir).max(0.0).powf(intersect.material.specular);
-        let specular = light.color * intersect.material.albedo[1] * specular_intensity * light_intensity;
+        let specular = light.color * specular_intensity * light_intensity;
 
         // Ajustar el color con las intensidades calculadas
-        color = color.add(diffuse);
-        color = color.add(specular);
+        color = color.add(diffuse).add(specular);
 
         // Reflexión
         if intersect.material.albedo[2] > 0.0 {
@@ -112,6 +119,33 @@ fn cast_ray(
         (Color::new(4, 12, 36), f32::INFINITY) // Color de fondo
     }
 }
+
+fn sample_texture(texture: &Texture, uv: (f32, f32)) -> Color {
+    let u = uv.0.clamp(0.0, 1.0);
+    let v = uv.1.clamp(0.0, 1.0);
+
+    // Obtener el tamaño de la textura
+    let width = texture.image.width() as f32;  // Debe ser 16
+    let height = texture.image.height() as f32; // Debe ser 16
+
+    // Escalar las coordenadas UV a índices de píxeles
+    let x = (u * (width - 1.0)).round() as usize;
+    let y = (v * (height - 1.0)).round() as usize;
+
+    // Verifica que los índices estén dentro de los límites
+    if x >= width as usize {
+        eprintln!("Índice X fuera de límites: {}", x);
+        return Color::new(255, 0, 0); // Color de error, rojo por ejemplo
+    }
+    if y >= height as usize {
+        eprintln!("Índice Y fuera de límites: {}", y);
+        return Color::new(255, 0, 0); // Color de error, rojo por ejemplo
+    }
+
+    // Obtener el color en las coordenadas (x, y) de la textura
+    texture.get_color(x as f32, y as f32)
+}
+
 
 fn reflect(incident: &Vec3, normal: &Vec3) -> Vec3 {
     incident - 2.0 * incident.dot(normal) * normal

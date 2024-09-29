@@ -8,6 +8,7 @@ mod bmp;
 mod camera;
 mod light;
 mod figures;
+mod texture;
 
 use framebuffer::Framebuffer;
 use color::Color;
@@ -21,27 +22,31 @@ use minifb::{Key, Window, WindowOptions};
 use camera::Camera;
 
 use crate::ray_intersect::Renderable;
+use crate::texture::Texture;
 
 fn main() {
     let width = 800;  // Ajusta el tamaño del framebuffer según sea necesario
     let height = 800; // Ajusta el tamaño del framebuffer según sea necesario
     let mut framebuffer = Framebuffer::new(width, height);
-
-    let fur = Material::new(color::Color::new(255,255,255), 0.0, [0.6, 0.3, 2.0, 2.0], 1.0);
-    let skin = Material::new(color::Color::new(250,175,188), 100.0, [0.6, 0.3, 0.0, 0.0], 1.0);
-    let mouth_m = Material::new(color::Color::new(240,240,240), 0.3, [0.6, 0.3, 0.0, 0.0], 1.0);
-    let black = Material::new(color::Color::new(0,0,0), 0.0, [0.6, 0.3, 0.0, 0.0], 1.0);
+    let dirt_texture = Texture::new("textures/dirt.png");
     
+    let dirt = Material::new(color::Color::new(94,58,30), 0.1, [0.8, 0.1, 0.0, 0.0], 1.0, Some("textures/dirt.jpeg"));
+
+    let fur = Material::new(color::Color::new(255,255,255), 0.0, [0.6, 0.3, 0.0, 0.0], 1.0, Some("textures/dirt.jpeg"));
+    let mouth_m = Material::new(color::Color::new(240,240,240), 0.3, [0.6, 0.3, 0.0, 0.0], 1.0, Some("textures/dirt.jpeg"));
+    let black = Material::new(color::Color::new(0,0,0), 0.0, [0.6, 0.3, 0.0, 0.0], 1.0, Some("textures/dirt.jpeg"));
+    
+
     let cube_1: Cube = Cube {
         center: Vec3::new(0.0,0.0,0.0),
         length: 1,
-        material: black,
+        material: dirt,
     };
 
     let cube_2: Cube = Cube {
         center: Vec3::new(1.0,0.0,0.0),
         length: 1,
-        material: fur
+        material: fur,
     };
 
     let objects: Vec<&dyn Renderable> = vec![

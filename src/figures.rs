@@ -14,3 +14,14 @@ pub struct Cube {
     pub length: i16,
     pub material: Material,
 }
+
+impl Cube {
+    pub fn new(center: Vec3, length: i16, material: Material) -> Self {
+
+        Cube {
+            center,
+            length,
+            material,
+        }
+    }
+}
