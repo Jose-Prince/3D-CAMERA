@@ -8,7 +8,6 @@ mod bmp;
 mod camera;
 mod light;
 mod figures;
-mod texture;
 
 use framebuffer::Framebuffer;
 use color::Color;
@@ -22,36 +21,87 @@ use minifb::{Key, Window, WindowOptions};
 use camera::Camera;
 
 use crate::ray_intersect::Renderable;
-use crate::texture::Texture;
 
 fn main() {
     let width = 800;  // Ajusta el tamaño del framebuffer según sea necesario
     let height = 800; // Ajusta el tamaño del framebuffer según sea necesario
     let mut framebuffer = Framebuffer::new(width, height);
-    let dirt_texture = Texture::new("textures/dirt.png");
-    
-    let dirt = Material::new(color::Color::new(94,58,30), 0.1, [0.8, 0.1, 0.0, 0.0], 1.0, Some("textures/dirt.jpeg"));
 
-    let fur = Material::new(color::Color::new(255,255,255), 0.0, [0.6, 0.3, 0.0, 0.0], 1.0, Some("textures/dirt.jpeg"));
-    let mouth_m = Material::new(color::Color::new(240,240,240), 0.3, [0.6, 0.3, 0.0, 0.0], 1.0, Some("textures/dirt.jpeg"));
-    let black = Material::new(color::Color::new(0,0,0), 0.0, [0.6, 0.3, 0.0, 0.0], 1.0, Some("textures/dirt.jpeg"));
+    let fur = Material::new(color::Color::new(255,255,255), 0.0, [0.6, 0.3, 0.0, 0.0], 1.0);
+    let skin = Material::new(color::Color::new(250,175,188), 100.0, [0.6, 0.3, 0.0, 0.0], 1.0);
+    let mouth_m = Material::new(color::Color::new(240,240,240), 0.3, [0.6, 0.3, 0.0, 0.0], 1.0);
+    let black = Material::new(color::Color::new(0,0,0), 0.0, [0.6, 0.3, 0.0, 0.0], 1.0);
     
-
-    let cube_1: Cube = Cube {
-        center: Vec3::new(0.0,0.0,0.0),
-        length: 1,
-        material: dirt,
+    let right_ear: Sphere = Sphere {
+        center: Vec3::new(1.7,2.0,-7.0),
+        radius: 1.2,
+        material: fur,
     };
 
-    let cube_2: Cube = Cube {
-        center: Vec3::new(1.0,0.0,0.0),
-        length: 1,
+    let left_ear: Sphere = Sphere {
+        center: Vec3::new(-1.7,2.0,-7.0),
+        radius: 1.2,
+        material: fur,
+    };
+
+    let head: Sphere = Sphere {
+        center: Vec3::new(0.0,0.0,-5.0),
+        radius: 2.0,
+        material: fur,
+    };
+
+    let inside_right_ear: Sphere = Sphere {
+        center: Vec3::new(1.5,1.8,-6.0),
+        radius: 0.6,
+        material: skin,
+    };
+
+    let inside_left_ear: Sphere = Sphere {
+        center: Vec3::new(-1.5,1.8,-6.0),
+        radius: 0.6,
+        material: skin,
+    };
+
+    let mouth: Sphere = Sphere {
+        center: Vec3::new(0.0,-0.55,-3.5),
+        radius: 0.9,
+        material: mouth_m,
+    };
+
+    let nose: Sphere = Sphere {
+        center: Vec3::new(0.0,-0.2,-2.0),
+        radius: 0.2,
+        material: black,
+    };
+
+    let eye_r: Sphere = Sphere {
+        center: Vec3::new(0.2,0.3,-2.0),
+        radius: 0.15,
+        material: black,
+    };
+
+    let eye_l: Sphere = Sphere {
+        center: Vec3::new(-0.2,0.3,-2.0),
+        radius: 0.15,
+        material: black,
+    };
+
+    let cube_1: Cube = Cube {
+        center: Vec3::new(-0.2,0.3,-15.0),
+        length: 5,
         material: fur,
     };
 
     let objects: Vec<&dyn Renderable> = vec![
+        &head,&right_ear, 
+        &left_ear, 
+        &inside_right_ear, 
+        &inside_left_ear,
+        &mouth,
+        &nose,
+        &eye_r,
+        &eye_l,
         &cube_1,
-        &cube_2,
     ];
 
     let mut camera = Camera {
@@ -94,12 +144,12 @@ fn main() {
         if window.is_key_down(Key::S) {
             camera.orbit(0.0, -0.05);  // Rotar en el eje X (pitch) hacia abajo
         }
-
+        
         //Changing camera zoom
         if window.is_key_down(Key::Up) {
             camera.zoom(-0.5); //Zoom in
         }
-
+    
         if window.is_key_down(Key::Down) {
             camera.zoom(0.5); //Zoom out
         }

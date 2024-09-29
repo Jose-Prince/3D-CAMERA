@@ -35,7 +35,7 @@ impl Renderable for Sphere {
         let hit_point = ray_origin + ray_direction * distance;
         let normal = (hit_point - self.center).normalize();
 
-        Intersect::new(hit_point, normal, distance, self.material.clone(), (0.0, 0.0))
+        Intersect::new(hit_point, normal, distance, self.material)
     }
 
     fn get_normal(&self, point: &Vec3) -> Vec3 {
@@ -50,87 +50,52 @@ impl Renderable for Cube {
             self.center - Vec3::new(self.length as f32 / 2.0, self.length as f32 / 2.0, self.length as f32 / 2.0),
             self.center + Vec3::new(self.length as f32 / 2.0, self.length as f32 / 2.0, self.length as f32 / 2.0),
         ];
-    
+
         let mut tmin = (bounds[0].x - ray_origin.x) * inv_dir.x;
         let mut tmax = (bounds[1].x - ray_origin.x) * inv_dir.x;
         if tmin > tmax {
             std::mem::swap(&mut tmin, &mut tmax);
         }
-    
+
         let mut tymin = (bounds[0].y - ray_origin.y) * inv_dir.y;
         let mut tymax = (bounds[1].y - ray_origin.y) * inv_dir.y;
         if tymin > tymax {
             std::mem::swap(&mut tymin, &mut tymax);
         }
-    
+
         if (tmin > tymax) || (tymin > tmax) {
             return Intersect::empty(); // No hay intersección
         }
-    
+
         tmin = tmin.max(tymin);
         tmax = tmax.min(tymax);
-    
+
         let mut tzmin = (bounds[0].z - ray_origin.z) * inv_dir.z;
         let mut tzmax = (bounds[1].z - ray_origin.z) * inv_dir.z;
         if tzmin > tzmax {
             std::mem::swap(&mut tzmin, &mut tzmax);
         }
-    
+
         if (tmin > tzmax) || (tzmin > tmax) {
             return Intersect::empty(); // No hay intersección
         }
-    
+
         tmin = tmin.max(tzmin);
         tmax = tmax.min(tzmax);
-    
+
         // Si llegamos aquí, hay una intersección
         let distance = tmin; // La distancia más cercana
         let point = ray_origin + ray_direction * distance;
         let normal = self.get_normal(&point); // Debes calcular la normal en el punto de intersección
-    
-        let (u, v) = match normal {
-            n if n.x.abs() > n.y.abs() && n.x.abs() > n.z.abs() => {
-                // Cara izquierda o derecha
-                let u = if n.x > 0.0 {
-                    (point.z + self.length as f32 / 2.0) / self.length as f32 // Cara derecha
-                } else {
-                    (self.length as f32 / 2.0 - point.z) / self.length as f32 // Cara izquierda
-                };
-                let v = (point.y + self.length as f32 / 2.0) / self.length as f32; // Altura
-                (u, v)
-            },
-            n if n.y.abs() > n.x.abs() && n.y.abs() > n.z.abs() => {
-                // Cara superior o inferior
-                let u = (point.x + self.length as f32 / 2.0) / self.length as f32; // Ancho
-                let v = if n.y > 0.0 {
-                    (self.length as f32 / 2.0 - point.z) / self.length as f32 // Cara superior
-                } else {
-                    (point.z + self.length as f32 / 2.0) / self.length as f32 // Cara inferior
-                };
-                (u, v)
-            },
-            _ => {
-                // Cara frontal o trasera
-                let u = (point.x + self.length as f32 / 2.0) / self.length as f32; // Ancho
-                let v = if normal.z > 0.0 { // Aquí se ha cambiado n por normal
-                    (point.y + self.length as f32 / 2.0) / self.length as f32 // Cara trasera
-                } else {
-                    (self.length as f32 / 2.0 - point.y) / self.length as f32 // Cara frontal
-                };
-                (u, v)
-            }
-        };
-    
+
         Intersect {
             is_intersecting: true,
             distance,
             point,
             normal,
             material: self.material.clone(),
-            uv: (u, v),
         }
     }
-    
 
     fn get_normal(&self, point: &Vec3) -> Vec3 {
         let half_length = self.length as f32 / 2.0;
@@ -159,4 +124,3 @@ impl Renderable for Cube {
         Vec3::new(0.0, 0.0, 0.0) // Normal predeterminada (sin colisión detectada)
     }
 }
-
