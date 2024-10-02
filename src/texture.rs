@@ -2,25 +2,33 @@
 
 use image::{DynamicImage, GenericImageView};
 use crate::Color;
+use std::sync::Arc;
+use std::path::Path;
 
 #[derive(Debug, Clone)]
 pub struct Texture {
-    pub image: DynamicImage,
+    pub data: Vec<Color>,
+    pub width: usize,
+    pub height: usize,
 }
 
 impl Texture {
-    pub fn new(path: &str) -> Self {
-        let image = image::open(path).expect("Failed to load texture");
-        Texture { image }
+    pub fn get_color(&self, x: usize, y: usize) -> Color {
+        self.data[y * self.width + x]
     }
 
-    pub fn get_color(&self, u: f32, v: f32) -> Color {
-        let (width, height) = self.image.dimensions();
-        let x = (u * width as f32).clamp(0.0, (width - 1) as f32) as u32;
-        let y = (v * height as f32).clamp(0.0, (height - 1) as f32) as u32;
-    
-        let pixel = self.image.get_pixel(x, y).0;
-        Color::new(pixel[0] as i32, pixel[1] as i32, pixel[2] as i32)
-    }    
-
+    pub fn load_from_file<P: AsRef<Path>>(path: P) -> Arc<Self> {
+        let img = image::open(path).expect("Failed to load texture");
+        let img = img.to_rgb8();
+        let (width, height) = img.dimensions();
+        let data = img
+                .pixels()
+                .map(|p| Color::new(p[0] as i32, p[1] as i32, p[2] as i32))  // Conversión de u8 a i32
+                .collect();
+        Arc::new(Texture {
+            data,
+            width: width as usize,
+            height: height as usize,
+        })
+    }
 }

@@ -35,7 +35,7 @@ impl Renderable for Sphere {
         let hit_point = ray_origin + ray_direction * distance;
         let normal = (hit_point - self.center).normalize();
 
-        Intersect::new(hit_point, normal, distance, self.material)
+        Intersect::new(hit_point, normal, distance, Some(self.material.clone()), 0.0, 0.0)
     }
 
     fn get_normal(&self, point: &Vec3) -> Vec3 {
@@ -87,13 +87,17 @@ impl Renderable for Cube {
         let distance = tmin; // La distancia más cercana
         let point = ray_origin + ray_direction * distance;
         let normal = self.get_normal(&point); // Debes calcular la normal en el punto de intersección
+        
+        let (u, v) = self.get_uv(&point, &normal);
 
         Intersect {
             is_intersecting: true,
             distance,
             point,
             normal,
-            material: self.material.clone(),
+            material: Some(self.material.clone()),
+            u,
+            v,
         }
     }
 
