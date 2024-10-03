@@ -45,29 +45,23 @@ impl Renderable for Sphere {
 
 impl Renderable for Cube {
     fn ray_intersect(&self, ray_origin: &Vec3, ray_direction: &Vec3) -> Intersect {
+        // Evitar división por cero
+        if ray_direction.x.abs() < 1e-6 || ray_direction.y.abs() < 1e-6 || ray_direction.z.abs() < 1e-6 {
+            return Intersect::empty(); // No hay intersección si el rayo no tiene dirección
+        }
+
         let inv_dir = Vec3::new(1.0 / ray_direction.x, 1.0 / ray_direction.y, 1.0 / ray_direction.z);
+        let half_length = self.length as f32 / 2.0;
         let bounds = [
-            self.center - Vec3::new(self.length as f32 / 2.0, self.length as f32 / 2.0, self.length as f32 / 2.0),
-            self.center + Vec3::new(self.length as f32 / 2.0, self.length as f32 / 2.0, self.length as f32 / 2.0),
+            self.center - Vec3::new(half_length, half_length, half_length),
+            self.center + Vec3::new(half_length, half_length, half_length),
         ];
 
         // Calcular tmin y tmax para el eje x
-        let mut tmin = (bounds[0].x - ray_origin.x) * inv_dir.x;
-        let mut tmax = (bounds[1].x - ray_origin.x) * inv_dir.x;
-
-        // Intercambiar tmin y tmax si inv_dir.x es negativo
-        if inv_dir.x < 0.0 {
-            std::mem::swap(&mut tmin, &mut tmax);
-        }
+        let (mut tmin, mut tmax) = calculate_t(bounds[0].x, bounds[1].x, ray_origin.x, inv_dir.x);
 
         // Calcular tymin y tymax para el eje y
-        let mut tymin = (bounds[0].y - ray_origin.y) * inv_dir.y;
-        let mut tymax = (bounds[1].y - ray_origin.y) * inv_dir.y;
-
-        // Intercambiar tymin y tymax si inv_dir.y es negativo
-        if inv_dir.y < 0.0 {
-            std::mem::swap(&mut tymin, &mut tymax);
-        }
+        let (mut tymin, mut tymax) = calculate_t(bounds[0].y, bounds[1].y, ray_origin.y, inv_dir.y);
 
         // Comprobar si hay intersección
         if (tmin > tymax) || (tymin > tmax) {
@@ -79,13 +73,7 @@ impl Renderable for Cube {
         tmax = tmax.min(tymax);
 
         // Calcular tzmin y tzmax para el eje z
-        let mut tzmin = (bounds[0].z - ray_origin.z) * inv_dir.z;
-        let mut tzmax = (bounds[1].z - ray_origin.z) * inv_dir.z;
-
-        // Intercambiar tzmin y tzmax si inv_dir.z es negativo
-        if inv_dir.z < 0.0 {
-            std::mem::swap(&mut tzmin, &mut tzmax);
-        }
+        let (mut tzmin, mut tzmax) = calculate_t(bounds[0].z, bounds[1].z, ray_origin.z, inv_dir.z);
 
         // Comprobar si hay intersección
         if (tmin > tzmax) || (tzmin > tmax) {
@@ -97,10 +85,14 @@ impl Renderable for Cube {
         tmax = tmax.min(tzmax);
 
         // Si llegamos aquí, hay una intersección
+        if tmin < 0.0 {
+            return Intersect::empty(); // Ignorar intersecciones detrás del origen
+        }
+
         let distance = tmin; // La distancia más cercana
         let point = ray_origin + ray_direction * distance;
         let normal = self.get_normal(&point); // Calcular la normal en el punto de intersección
-        
+
         let (u, v) = self.get_uv(&point, &normal);
 
         Intersect {
@@ -139,5 +131,17 @@ impl Renderable for Cube {
         // Si llegamos aquí, significa que no pudimos identificar la cara, lo cual
         // podría ser un error en la intersección, pero para completar:
         Vec3::new(0.0, 0.0, 0.0) // Normal predeterminada (sin colisión detectada)
+    }
+}
+
+// Función auxiliar para calcular tmin y tmax
+fn calculate_t(min_bound: f32, max_bound: f32, ray_origin: f32, inv_dir: f32) -> (f32, f32) {
+    let tmin = (min_bound - ray_origin) * inv_dir;
+    let tmax = (max_bound - ray_origin) * inv_dir;
+
+    if inv_dir < 0.0 {
+        (tmax, tmin) // Intercambiar tmin y tmax si inv_dir es negativo
+    } else {
+        (tmin, tmax)
     }
 }

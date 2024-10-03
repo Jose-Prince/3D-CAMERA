@@ -145,21 +145,41 @@ fn cast_shadow(
     light: &Light,
     objects: &[&dyn Renderable],
 ) -> f32 {
+    // Calcular la dirección de la luz desde el punto de intersección
     let light_dir = (light.position - intersect.point).normalize();
-    let shadow_ray_origin = intersect.point + light_dir * 1e-3; // Mover ligeramente el origen para evitar "shadow acne"
+    
+    // Desplazar ligeramente el origen del rayo de sombra para evitar "shadow acne"
+    let shadow_ray_origin = intersect.point + light_dir * 1e-3; 
+
+    // Variable para determinar si hay un objeto bloqueando la luz
     let mut shadow_intensity: f32 = 0.0;
-    let mut zbuffer = f32::INFINITY;
+
+    // Determinamos la distancia máxima para comprobar si el objeto está dentro del rango de la luz
+    let max_distance = (light.position - intersect.point).norm();
 
     for object in objects {
+        // Obtener la intersección con el rayo de sombra
         let shadow_intersect = object.ray_intersect(&shadow_ray_origin, &light_dir);
-        if shadow_intersect.is_intersecting && shadow_intersect.distance < zbuffer {
-            zbuffer = shadow_intersect.distance;
-            shadow_intensity += 0.5; // Suma la intensidad de sombra para cada intersección
+
+        // Comprobar si hay una intersección y si está más cerca de lo que la luz puede alcanzar
+        if shadow_intersect.is_intersecting && shadow_intersect.distance < max_distance {
+            // Se encontró un objeto que bloquea la luz
+            shadow_intensity += 0.5; // Ajusta este valor para modificar la intensidad de la sombra
+            break; // Salimos del bucle si encontramos un objeto bloqueador
         }
+        // println!("Shadow Ray Origin: {:?}", shadow_ray_origin);
+        // println!("Light Direction: {:?}", light_dir);
+        // println!("Max Distance: {:?}", max_distance);
+        // println!("Intersect Distance: {:?}", shadow_intersect.distance);
     }
 
-    shadow_intensity.clamp(0.0, 1.0) // Limitar la intensidad entre 0 y 1
+
+
+    // Limitar la intensidad entre 0 y 1
+    shadow_intensity.clamp(0.0, 1.0)
 }
+
+
 
 fn cast_ray_with_refraction(
     intersect: &Intersect, 
