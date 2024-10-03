@@ -12,7 +12,6 @@ use crate::camera::Camera;
 use crate::ray_intersect::Renderable;
 use crate::texture::Texture;
 
-
 pub fn render(
     framebuffer: &mut Framebuffer, 
     objects: &[&dyn Renderable], 
@@ -39,7 +38,6 @@ pub fn render(
             let pixel_index = (y as usize * width as usize) + (x as usize);
 
             if z < z_buffer[pixel_index] {
-                
                 framebuffer.set_current_color(pixel_color);
                 framebuffer.point(x.try_into().unwrap(), y.try_into().unwrap());
                 z_buffer[pixel_index] = z;
@@ -137,7 +135,6 @@ fn cast_ray(
         (Color::new(4, 12, 36), f32::INFINITY) // Color de fondo
     }
 }
-
 
 fn reflect(incident: &Vec3, normal: &Vec3) -> Vec3 {
     incident - 2.0 * incident.dot(normal) * normal

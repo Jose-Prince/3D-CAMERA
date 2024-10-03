@@ -51,42 +51,55 @@ impl Renderable for Cube {
             self.center + Vec3::new(self.length as f32 / 2.0, self.length as f32 / 2.0, self.length as f32 / 2.0),
         ];
 
+        // Calcular tmin y tmax para el eje x
         let mut tmin = (bounds[0].x - ray_origin.x) * inv_dir.x;
         let mut tmax = (bounds[1].x - ray_origin.x) * inv_dir.x;
-        if tmin > tmax {
+
+        // Intercambiar tmin y tmax si inv_dir.x es negativo
+        if inv_dir.x < 0.0 {
             std::mem::swap(&mut tmin, &mut tmax);
         }
 
+        // Calcular tymin y tymax para el eje y
         let mut tymin = (bounds[0].y - ray_origin.y) * inv_dir.y;
         let mut tymax = (bounds[1].y - ray_origin.y) * inv_dir.y;
-        if tymin > tymax {
+
+        // Intercambiar tymin y tymax si inv_dir.y es negativo
+        if inv_dir.y < 0.0 {
             std::mem::swap(&mut tymin, &mut tymax);
         }
 
+        // Comprobar si hay intersección
         if (tmin > tymax) || (tymin > tmax) {
             return Intersect::empty(); // No hay intersección
         }
 
+        // Actualizar tmin y tmax
         tmin = tmin.max(tymin);
         tmax = tmax.min(tymax);
 
+        // Calcular tzmin y tzmax para el eje z
         let mut tzmin = (bounds[0].z - ray_origin.z) * inv_dir.z;
         let mut tzmax = (bounds[1].z - ray_origin.z) * inv_dir.z;
-        if tzmin > tzmax {
+
+        // Intercambiar tzmin y tzmax si inv_dir.z es negativo
+        if inv_dir.z < 0.0 {
             std::mem::swap(&mut tzmin, &mut tzmax);
         }
 
+        // Comprobar si hay intersección
         if (tmin > tzmax) || (tzmin > tmax) {
             return Intersect::empty(); // No hay intersección
         }
 
+        // Actualizar tmin y tmax
         tmin = tmin.max(tzmin);
         tmax = tmax.min(tzmax);
 
         // Si llegamos aquí, hay una intersección
         let distance = tmin; // La distancia más cercana
         let point = ray_origin + ray_direction * distance;
-        let normal = self.get_normal(&point); // Debes calcular la normal en el punto de intersección
+        let normal = self.get_normal(&point); // Calcular la normal en el punto de intersección
         
         let (u, v) = self.get_uv(&point, &normal);
 
@@ -106,7 +119,7 @@ impl Renderable for Cube {
         let min_bound = self.center - Vec3::new(half_length, half_length, half_length);
         let max_bound = self.center + Vec3::new(half_length, half_length, half_length);
 
-        let epsilon = 1e-5; // Pequeño valor para manejar imprecisiones de coma flotante
+        let epsilon = 1e-4; // Pequeño valor para manejar imprecisiones de coma flotante
 
         // Comparar el punto con los límites del cubo para determinar la cara
         if (point.x - max_bound.x).abs() < epsilon {
