@@ -8,7 +8,7 @@ pub struct Material {
     pub specular: f32,
     pub albedo: [f32; 4],
     pub refractive_index: f32,
-    pub texture: Option<Arc<Texture>>, // Option permite que sea None o Some(Texture)
+    pub textures: [Option<Arc<Texture>>; 6], 
     pub has_texture: bool,
 }
 
@@ -18,7 +18,7 @@ impl Material {
         specular: f32,
         albedo: [f32; 4],
         refractive_index: f32,
-        texture: Option<Arc<Texture>>,
+        textures: [Option<Arc<Texture>>; 6],
         has_texture: bool,
     ) -> Self {
         Material {
@@ -26,13 +26,17 @@ impl Material {
             specular,
             albedo,
             refractive_index,
-            texture,
+            textures,
             has_texture,
         }
     }
 
-    pub fn get_texture(&self) -> Option<Arc<Texture>> {
-        self.texture.clone()
+    pub fn get_texture_for_face(&self, face_index: usize) -> Option<Arc<Texture>> {
+        if face_index < 6 {
+            self.textures[face_index].clone()
+        } else {
+            None
+        }
     }
 
     pub fn black() -> Self {
@@ -41,14 +45,14 @@ impl Material {
             specular: 0.0,
             albedo: [0.0, 0.0, 0.0, 0.0],
             refractive_index: 1.0,
-            texture: None,
+            textures: [None,None,None,None,None,None],
             has_texture: false,
         }
     }
 
-    pub fn get_diffuse_color(&self, u: f32, v: f32) -> Color {
+    pub fn get_diffuse_color(&self, face_index: usize, u: f32, v: f32) -> Color {
         if self.has_texture {
-            if let Some(ref texture) = self.texture {
+            if let Some(ref texture) = self.get_texture_for_face(face_index) {
                 let x = u * (texture.width as f32 - 1.0);
                 let y = v * (texture.height as f32 - 1.0);
                 texture.get_color(x as usize, y as usize)

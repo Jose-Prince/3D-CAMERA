@@ -48,15 +48,6 @@ pub fn render(
     }
 }
 
-fn sample_texture(u: f32, v: f32) -> Color {
-    let texture_width = 256;  // Asumiendo un tamaño de textura
-    let texture_height = 256;
-    let tex_x = (u * texture_width as f32) as usize % texture_width;
-    let tex_y = (v * texture_height as f32) as usize % texture_height;
-
-    Color::new(0, 0, 0)
-}
-
 fn cast_ray(
     ray_origin: &Vec3, 
     ray_direction: &Vec3, 
@@ -71,6 +62,7 @@ fn cast_ray(
     let mut intersect = Intersect::empty();
     let mut zbuffer = f32::INFINITY;
 
+    // Buscar el objeto más cercano con el que el rayo intersecta
     for object in objects {
         let tmp = object.ray_intersect(ray_origin, ray_direction);
         if tmp.is_intersecting && tmp.distance < zbuffer {
@@ -91,28 +83,37 @@ fn cast_ray(
         let shadow_intensity = cast_shadow(&intersect, light, objects);
         let light_intensity = light.intensity * (1.0 - shadow_intensity);
 
-        // Aplicar textura si está disponible
+        // Luz ambiental: color constante aplicado a todas las superficies
+        let ambient_light_intensity = 0.3; // Valor que puedes ajustar según tu preferencia
+        let ambient_light_color = Color::new(80, 80, 80); // Color ambiental (gris oscuro)
+
+        // Determinar la textura en función de las coordenadas UV o la normal
         let texture_color = if let Some(ref material) = intersect.material {
-            // Usar get_diffuse_color para obtener el color difuso
-            let color = material.get_diffuse_color(intersect.u, intersect.v);
-            color // Devuelve el color de la textura
+            let face_index = if normal.x.abs() > 0.9 {
+                if normal.x > 0.0 { 0 } else { 1 } // Caras derecha e izquierda
+            } else if normal.y.abs() > 0.9 {
+                if normal.y > 0.0 { 2 } else { 3 } // Caras superior e inferior
+            } else if normal.z.abs() > 0.9 {
+                if normal.z > 0.0 { 4 } else { 5 } // Caras frontal y trasera
+            } else {
+                0 // Default
+            };
+
+            material.get_diffuse_color(face_index, intersect.u, 1.0 - intersect.v)
         } else {
             Color::new(0, 0, 0) // Color negro si no hay material
         };
 
         // Intensidad difusa
-        let diffuse_intensity = normal.dot(&light_dir).max(0.0);
-        let diffuse = texture_color * diffuse_intensity * light_intensity;
+        let diffuse_intensity = normal.dot(&light_dir).max(0.2);
 
-        // Aquí se necesita extraer material nuevamente para utilizar sus atributos
+        let ambient = ambient_light_color.mul(ambient_light_intensity);
+        let diffuse = texture_color.mul(diffuse_intensity * light_intensity);
+
         if let Some(ref material) = intersect.material {
             // Intensidad especular
             let specular_intensity = view_dir.dot(&reflect_dir).max(0.0).powf(material.specular);
             let specular = light.color * material.albedo[1] * specular_intensity * light_intensity;
-
-            // Ajustar el color con las intensidades calculadas
-            color = color.add(diffuse);
-            color = color.add(specular);
 
             // Reflexión
             if material.albedo[2] > 0.0 {
@@ -125,6 +126,10 @@ fn cast_ray(
                 let refraction_color = cast_ray_with_refraction(&intersect, &ray_direction, objects, light, depth - 1);
                 color = color.add(refraction_color.mul(material.albedo[3]));
             }
+
+            // Sumar las componentes de luz ambiental, difusa y especular
+            let shadow_color = Color::new(20, 20, 20);
+            color = ambient.add(diffuse).add(shadow_color.mul(shadow_intensity)); // Agregar luz ambiental
         }
 
         (color, intersect.distance)
@@ -132,6 +137,7 @@ fn cast_ray(
         (Color::new(4, 12, 36), f32::INFINITY) // Color de fondo
     }
 }
+
 
 fn reflect(incident: &Vec3, normal: &Vec3) -> Vec3 {
     incident - 2.0 * incident.dot(normal) * normal

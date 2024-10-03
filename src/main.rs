@@ -27,97 +27,132 @@ use crate::texture::Texture;
 
 fn main() {
 
-    let dirt_texture = Arc::new(Material {
+    let dirt_grass = Material {
         diffuse: Color::new(150, 100, 50),
-            specular: 15.0,  // Bajo brillo
-            albedo: [0.2, 0.3, 0.1, 0.0],
-            refractive_index: 1.0,
-            texture: Some(Texture::load_from_file("textures/dirt.png")),
-            has_texture: true,
-    });
+        specular: 15.0,  // Bajo brillo
+        albedo: [0.2, 0.3, 0.1, 0.0],
+        refractive_index: 1.0,
+        textures: [
+            Some(Texture::load_from_file("textures/dirt_side.webp")), //Right
+            Some(Texture::load_from_file("textures/dirt_side.webp")), //Left
+            Some(Texture::load_from_file("textures/dirt_top.jpg")), //Top
+            Some(Texture::load_from_file("textures/dirt.png")), //Bottom
+            Some(Texture::load_from_file("textures/dirt_side.webp")), //Front
+            Some(Texture::load_from_file("textures/dirt_side.webp")), //Back
+        ],
+        has_texture: true,
+    };
 
     let width = 800;  // Ajusta el tamaño del framebuffer según sea necesario
     let height = 800; // Ajusta el tamaño del framebuffer según sea necesario
     let mut framebuffer = Framebuffer::new(width, height);
 
-    // let dirt_texture = Texture::new("textures/dirt.jpeg").unwrap();
-
-    let dirt = Material::new(color::Color::new(255,255,255), 0.0, [0.6, 0.3, 0.0, 0.0], 1.0, dirt_texture.get_texture(), true);
-    let fur = Material::new(color::Color::new(0,255,0), 0.0, [0.6, 0.3, 0.0, 0.0], 1.0, None, false);
-    let skin = Material::new(color::Color::new(250,175,188), 100.0, [0.6, 0.3, 0.0, 0.0], 1.0, None, false);
-    let mouth_m = Material::new(color::Color::new(240,240,240), 0.3, [0.6, 0.3, 0.0, 0.0], 1.0, None, false);
-    let black = Material::new(color::Color::new(0,0,0), 0.0, [0.6, 0.3, 0.0, 0.0], 1.0, None, false);
-    
-    let right_ear: Sphere = Sphere {
-        center: Vec3::new(1.7,2.0,-7.0),
-        radius: 1.2,
-        material: fur.clone(),
-    };
-
-    let left_ear: Sphere = Sphere {
-        center: Vec3::new(-1.7,2.0,-7.0),
-        radius: 1.2,
-        material: fur.clone(),
-    };
-
-    let head: Sphere = Sphere {
-        center: Vec3::new(0.0,0.0,-5.0),
-        radius: 2.0,
-        material: fur.clone(),
-    };
-
-    let inside_right_ear: Sphere = Sphere {
-        center: Vec3::new(1.5,1.8,-6.0),
-        radius: 0.6,
-        material: skin.clone(),
-    };
-
-    let inside_left_ear: Sphere = Sphere {
-        center: Vec3::new(-1.5,1.8,-6.0),
-        radius: 0.6,
-        material: skin.clone(),
-    };
-
-    let mouth: Sphere = Sphere {
-        center: Vec3::new(0.0,-0.55,-3.5),
-        radius: 0.9,
-        material: mouth_m.clone(),
-    };
-
-    let nose: Sphere = Sphere {
-        center: Vec3::new(0.0,-0.2,-2.0),
-        radius: 0.2,
-        material: black.clone(),
-    };
-
-    let eye_r: Sphere = Sphere {
-        center: Vec3::new(0.2,0.3,-2.0),
-        radius: 0.15,
-        material: black.clone(),
-    };
-
-    let eye_l: Sphere = Sphere {
-        center: Vec3::new(0.0,0.0,0.0),
-        radius: 0.15,
-        material: black.clone(),
-    };
-
     let cube_1: Cube = Cube {
-        center: Vec3::new(-0.2,0.3,-15.0),
-        length: 5,
-        material: dirt.clone(),
+        center: Vec3::new(0.0, 0.0, 0.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_2: Cube = Cube {
+        center: Vec3::new(0.0, 0.0, 1.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_3: Cube = Cube {
+        center: Vec3::new(0.0, 0.0, 2.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_4: Cube = Cube {
+        center: Vec3::new(0.0, 0.0, 3.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_5: Cube = Cube {
+        center: Vec3::new(1.0, 0.0, 0.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_6: Cube = Cube {
+        center: Vec3::new(1.0, 0.0, 1.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_7: Cube = Cube {
+        center: Vec3::new(1.0, 0.0, 2.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_8: Cube = Cube {
+        center: Vec3::new(1.0, 0.0, 3.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_9: Cube = Cube {
+        center: Vec3::new(2.0, 0.0, 0.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_10: Cube = Cube {
+        center: Vec3::new(2.0, 0.0, 1.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_11: Cube = Cube {
+        center: Vec3::new(2.0, 0.0, 2.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_12: Cube = Cube {
+        center: Vec3::new(2.0, 0.0, 3.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_13: Cube = Cube {
+        center: Vec3::new(-1.0, 0.0, 0.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_14: Cube = Cube {
+        center: Vec3::new(-2.0, 0.0, 0.0),
+        length: 1,
+        material: dirt_grass.clone(),
+    };
+
+    let cube_15: Cube = Cube {
+        center: Vec3::new(-3.0, 0.0, 0.0),
+        length: 1,
+        material: dirt_grass.clone(),
     };
 
     let objects: Vec<&dyn Renderable> = vec![
-        // &head,&right_ear, 
-        // &left_ear, 
-        // &inside_right_ear, 
-        // &inside_left_ear,
-        // &mouth,
-        // &nose,
-        // &eye_r,
-        // &eye_l,
         &cube_1,
+        &cube_2,
+        &cube_3,
+        &cube_4,
+        &cube_5,
+        &cube_6,
+        &cube_7,
+        &cube_8,
+        &cube_9,
+        &cube_10,
+        &cube_11,
+        &cube_12,
+        &cube_13,
+        &cube_14,
+        &cube_15,
     ];
 
     let mut camera = Camera {
@@ -127,7 +162,7 @@ fn main() {
     };
 
     let light = Light::new(
-        Vec3::new(5.0, 5.0, 5.0),
+        Vec3::new(10.0, 10.0, 10.0),
         Color::new(255,255,255),
         1.0,
     );
