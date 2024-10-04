@@ -1,6 +1,7 @@
 use nalgebra_glm::Vec3;
 use crate::color::Color;
 use crate::material::Material;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -9,14 +10,14 @@ pub struct Intersect {
     pub normal: Vec3,       // Normal en el punto de intersección
     pub distance: f32,      // Distancia desde el origen del rayo hasta el punto de intersección
     pub is_intersecting: bool, // Indica si hay una intersección
-    pub material: Option<Material>, // Material en el punto de intersección
+    pub material: Option<Arc<Material>>, // Material en el punto de intersección
     pub u: f32,             // Coordenada U para texturizado
     pub v: f32,             // Coordenada V para texturizado
 }
 
 impl Intersect {
     // Constructor para crear un nuevo Intersect
-    pub fn new(point: Vec3, normal: Vec3, distance: f32, material: Option<Material>, u: f32, v: f32) -> Self {
+    pub fn new(point: Vec3, normal: Vec3, distance: f32, material: Option<Arc<Material>>, u: f32, v: f32) -> Self {
         Intersect {
             point,
             normal,

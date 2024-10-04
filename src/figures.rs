@@ -3,6 +3,8 @@
 use nalgebra_glm::Vec3;
 use crate::Material;
 use crate::intersect::Intersect;
+use std::sync::Arc;
+
 
 pub struct Sphere {
     pub center: Vec3,
@@ -10,56 +12,10 @@ pub struct Sphere {
     pub material: Material,
 }
 
-pub struct RectangularPrism {
-    pub center: Vec3,
-    pub width: f32,
-    pub height: f32,
-    pub depth: f32,
-    pub material: Material,
-}
-
-impl RectangularPrism {
-    pub fn get_uv(&self, point: &Vec3, normal: &Vec3) -> (f32, f32) {
-        let width_half = self.width / 2.0;
-    let depth_half = self.depth / 2.0;
-
-    // Comprobar en función de la normal
-    if normal.y > 0.0 { // Cara superior
-        let u = (point.x + width_half) / self.width;
-        let v = (point.z + depth_half) / self.depth;
-        return (u, v);
-    } else if normal.y < 0.0 { // Base inferior
-        let u = (point.x + width_half) / self.width;
-        let v = (point.z + depth_half) / self.depth;
-        return (u, v);
-    } else if normal.x > 0.0 { // Cara +X
-        let v = (point.y + self.height / 2.0) / self.height;
-        let u = (point.z + depth_half) / self.depth;
-        return (u, v);
-    } else if normal.x < 0.0 { // Cara -X
-        let v = (point.y + self.height / 2.0) / self.height;
-        let u = (point.z + depth_half) / self.depth;
-        return (u, v);
-    } else if normal.z > 0.0 { // Cara +Z
-        let u = (point.x + width_half) / self.width;
-        let v = (point.y + self.height / 2.0) / self.height;
-        return (u, v);
-    } else if normal.z < 0.0 { // Cara -Z
-        let u = (point.x + width_half) / self.width;
-        let v = (point.y + self.height / 2.0) / self.height;
-        return (u, v);
-    }
-
-    // Si no está en ninguna cara, retornar (0.0, 0.0) como predeterminado
-    (0.0, 0.0)
-    }
-}
-
-
 pub struct Cube {
     pub center: Vec3,
     pub length: i16,
-    pub material: Material,
+    pub material: Arc<Material>,
 }
 
 impl Cube {

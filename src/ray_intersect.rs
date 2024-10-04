@@ -3,11 +3,10 @@
 use nalgebra_glm::{Vec3, dot};
 use crate::figures::Sphere;
 use crate::figures::Cube;
-use crate::figures::RectangularPrism;
 use crate::material::Material;
 use crate::intersect::{Intersect, RayIntersect}; // Importa Intersect y RayIntersect
 
-pub trait Renderable {
+pub trait Renderable: Send {
     fn ray_intersect(&self, ray_origin: &Vec3, ray_direction: &Vec3) -> Intersect;
     fn get_normal(&self, point: &Vec3) -> Vec3;
 }
@@ -36,114 +35,13 @@ impl Renderable for Sphere {
         let hit_point = ray_origin + ray_direction * distance;
         let normal = (hit_point - self.center).normalize();
 
-        Intersect::new(hit_point, normal, distance, Some(self.material.clone()), 0.0, 0.0)
+        Intersect::new(hit_point, normal, distance, Some(self.material.clone().into()), 0.0, 0.0)
     }
 
     fn get_normal(&self, point: &Vec3) -> Vec3 {
         Vec3::new(0.0, 0.0, 0.0) // Normal predeterminada (sin colisión detectada)
     }
 }
-
-impl Renderable for RectangularPrism {
-    fn ray_intersect(&self, ray_origin: &Vec3, ray_direction: &Vec3) -> Intersect {
-        // Primero, determina los límites del prisma
-        let half_width = self.width / 2.0;
-        let half_height = self.height / 2.0;
-        let half_depth = self.depth / 2.0;
-
-        // Definir las caras del prisma
-        let min_x = self.center.x - half_width;
-        let max_x = self.center.x + half_width;
-        let min_y = self.center.y - half_height;
-        let max_y = self.center.y + half_height;
-        let min_z = self.center.z - half_depth;
-        let max_z = self.center.z + half_depth;
-
-        // Calcular los t's para cada plano
-        let t_x_min = (min_x - ray_origin.x) / ray_direction.x;
-        let t_x_max = (max_x - ray_origin.x) / ray_direction.x;
-        let t_y_min = (min_y - ray_origin.y) / ray_direction.y;
-        let t_y_max = (max_y - ray_origin.y) / ray_direction.y;
-        let t_z_min = (min_z - ray_origin.z) / ray_direction.z;
-        let t_z_max = (max_z - ray_origin.z) / ray_direction.z;
-
-        // Asegurar que t_x_min siempre sea menor que t_x_max
-        let (t_min_x, t_max_x) = if t_x_min < t_x_max {
-            (t_x_min, t_x_max)
-        } else {
-            (t_x_max, t_x_min)
-        };
-
-        // Hacer lo mismo para las coordenadas Y y Z
-        let (t_min_y, t_max_y) = if t_y_min < t_y_max {
-            (t_y_min, t_y_max)
-        } else {
-            (t_y_max, t_y_min)
-        };
-
-        let (t_min_z, t_max_z) = if t_z_min < t_z_max {
-            (t_z_min, t_z_max)
-        } else {
-            (t_z_max, t_z_min)
-        };
-
-        // Encontrar el valor máximo de t_min y el mínimo de t_max
-        let t_enter = t_min_x.max(t_min_y).max(t_min_z);
-        let t_exit = t_max_x.min(t_max_y).min(t_max_z);
-
-        // Verificar si hay una intersección
-        if t_enter < t_exit && t_exit > 0.0 {
-
-            let point = ray_origin + ray_direction * t_enter;
-            let normal = self.get_normal(&point);
-            let (u, v) = self.get_uv(&point, &normal);
-
-            return Intersect {
-                is_intersecting: true,
-                distance: t_enter,
-                point: point,
-                normal: normal,
-                material: Some(self.material.clone()),
-                u: u,
-                v: v,
-            };
-        }
-
-        Intersect {
-            is_intersecting: false,
-            distance: 0.0,
-            point: Vec3::new(0.0, 0.0, 0.0),
-            normal: Vec3::new(0.0, 0.0, 0.0),
-            material: None,
-            u: 0.0,
-            v: 0.0,
-        }
-    }
-
-    fn get_normal(&self, point: &Vec3) -> Vec3 {
-        let half_width = self.width / 2.0;
-        let half_height = self.height / 2.0;
-        let half_depth = self.depth / 2.0;
-
-        // Determinar en qué cara del prisma se encuentra el punto
-        if (point.x - (self.center.x + half_width)).abs() < 1e-4 { // Cara +X
-            return Vec3::new(1.0, 0.0, 0.0);
-        } else if (point.x - (self.center.x - half_width)).abs() < 1e-4 { // Cara -X
-            return Vec3::new(-1.0, 0.0, 0.0);
-        } else if (point.y - (self.center.y + half_height)).abs() < 1e-4 { // Cara +Y
-            return Vec3::new(0.0, 1.0, 0.0);
-        } else if (point.y - (self.center.y - half_height)).abs() < 1e-4 { // Cara -Y
-            return Vec3::new(0.0, -1.0, 0.0);
-        } else if (point.z - (self.center.z + half_depth)).abs() < 1e-4 { // Cara +Z
-            return Vec3::new(0.0, 0.0, 1.0);
-        } else if (point.z - (self.center.z - half_depth)).abs() < 1e-4 { // Cara -Z
-            return Vec3::new(0.0, 0.0, -1.0);
-        }
-
-        Vec3::new(0.0, 0.0, 0.0) // Normal por defecto si no está en ninguna cara
-    }
-}
-
 
 impl Renderable for Cube {
     fn ray_intersect(&self, ray_origin: &Vec3, ray_direction: &Vec3) -> Intersect {

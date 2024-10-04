@@ -7,7 +7,7 @@ use std::path::Path;
 
 #[derive(Debug, Clone)]
 pub struct Texture {
-    pub data: Vec<Color>,
+    pub data: Arc<Vec<Color>>,
     pub width: usize,
     pub height: usize,
 }
@@ -21,14 +21,19 @@ impl Texture {
         let img = image::open(path).expect("Failed to load texture");
         let img = img.to_rgb8();
         let (width, height) = img.dimensions();
-        let data = img
-                .pixels()
-                .map(|p| Color::new(p[0] as i32, p[1] as i32, p[2] as i32))  // Conversión de u8 a i32
-                .collect();
+        
+        // Primero, crea un Vec<Color>
+        let data: Vec<Color> = img
+            .pixels()
+            .map(|p| Color::new(p[0] as i32, p[1] as i32, p[2] as i32))  // Conversión de u8 a i32
+            .collect(); // Esto devuelve un Vec<Color>
+        
+        // Luego, convierte el Vec<Color> a un Arc<Vec<Color>>
         Arc::new(Texture {
-            data,
+            data: Arc::new(data),
             width: width as usize,
             height: height as usize,
         })
     }
+    
 }
