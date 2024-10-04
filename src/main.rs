@@ -15,6 +15,7 @@ use color::Color;
 use material::Material;
 use figures::Sphere;
 use figures::Cube;
+use figures::RectangularPrism;
 use render::render;
 use light::Light;
 use nalgebra_glm::{Vec3, vec3};
@@ -735,6 +736,14 @@ fn main() {
         material: chest_tetxure.clone(),
     };
 
+    let water_slab : RectangularPrism = RectangularPrism {
+        center: Vec3::new(5.0, 0.5, 1.0),
+        width: 1.0,
+        height: 0.5,
+        depth: 1.0,
+        material: water.clone(),
+    };
+
     let objects: Vec<&dyn Renderable> = vec![
         &cube_0_0_0,
         &cube_0_0_1,
@@ -838,6 +847,7 @@ fn main() {
         &water_cube,
         &lava_cube,
         &chest,
+        &water_slab,
     ];
 
     let mut camera = Camera {
