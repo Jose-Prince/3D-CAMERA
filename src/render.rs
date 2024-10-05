@@ -14,7 +14,7 @@ use crate::texture::Texture;
 
 pub fn render(
     framebuffer: &mut Framebuffer, 
-    objects: &[&dyn Renderable], 
+    objects: &[Box<dyn Renderable>],  // Aceptar Box como antes
     camera: &Camera, 
     light: &Light,
 ) {
@@ -23,6 +23,9 @@ pub fn render(
     let aspect_ratio = width / height;
 
     let mut z_buffer = vec![f32::INFINITY; (width * height) as usize];
+
+    // Convertir Vec<Box<dyn Renderable>> a Vec<&dyn Renderable>
+    let object_refs: Vec<&dyn Renderable> = objects.iter().map(|obj| obj.as_ref()).collect();
 
     for y in 0..framebuffer.get_height() {
         for x in 0..framebuffer.get_width() {
@@ -33,7 +36,8 @@ pub fn render(
             let ray_direction = camera.basis_change(&ray_camera_space);
             let ray_origin = camera.eye;
 
-            let (pixel_color, z) = cast_ray(&ray_origin, &ray_direction, objects, light, 5);
+            // Pasar las referencias correctas a cast_ray
+            let (pixel_color, z) = cast_ray(&ray_origin, &ray_direction, &object_refs, light, 5);
 
             let pixel_index = (y as usize * width as usize) + (x as usize);
 

@@ -160,693 +160,123 @@ fn main() {
     let mut framebuffer = Framebuffer::new(width, height);
 
 
-    //Top lair
-    let cube_0_0_0: Cube = Cube {
-        center: Vec3::new(0.0, 0.0, 0.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
+    let mut objects: Vec<Box<dyn Renderable>> = Vec::new(); 
 
-    let cube_0_0_1: Cube = Cube {
-        center: Vec3::new(0.0, 0.0, 1.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_0_0_2: Cube = Cube {
-        center: Vec3::new(0.0, 0.0, 2.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_0_0_3: Cube = Cube {
-        center: Vec3::new(0.0, 0.0, 3.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_0_0_4: Cube = Cube {
-        center: Vec3::new(0.0, 0.0, 4.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_0_0_5: Cube = Cube {
-        center: Vec3::new(0.0, 0.0, 5.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_1_0_0: Cube = Cube {
-        center: Vec3::new(1.0, 0.0, 0.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_1_0_1: Cube = Cube {
-        center: Vec3::new(1.0, 0.0, 1.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_1_0_2: Cube = Cube {
-        center: Vec3::new(1.0, 0.0, 2.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_1_0_3: Cube = Cube {
-        center: Vec3::new(1.0, 0.0, 3.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_1_0_4: Cube = Cube {
-        center: Vec3::new(1.0, 0.0, 4.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_1_0_5: Cube = Cube {
-        center: Vec3::new(1.0, 0.0, 5.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_2_0_0: Cube = Cube {
-        center: Vec3::new(2.0, 0.0, 0.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_2_0_1: Cube = Cube {
-        center: Vec3::new(2.0, 0.0, 1.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_2_0_2: Cube = Cube {
-        center: Vec3::new(2.0, 0.0, 2.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_2_0_3: Cube = Cube {
-        center: Vec3::new(2.0, 0.0, 3.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_2_0_4: Cube = Cube {
-        center: Vec3::new(2.0, 0.0, 4.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_2_0_5: Cube = Cube {
-        center: Vec3::new(2.0, 0.0, 5.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_3_0_0: Cube = Cube {
-        center: Vec3::new(3.0, 0.0, 0.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_3_0_1: Cube = Cube {
-        center: Vec3::new(3.0, 0.0, 1.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_3_0_2: Cube = Cube {
-        center: Vec3::new(3.0, 0.0, 2.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_4_0_0: Cube = Cube {
-        center: Vec3::new(4.0, 0.0, 0.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_4_0_1: Cube = Cube {
-        center: Vec3::new(4.0, 0.0, 1.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_4_0_2: Cube = Cube {
-        center: Vec3::new(4.0, 0.0, 2.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_5_0_0: Cube = Cube {
-        center: Vec3::new(5.0, 0.0, 0.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_5_0_1: Cube = Cube {
-        center: Vec3::new(5.0, 0.0, 1.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
-
-    let cube_5_0_2: Cube = Cube {
-        center: Vec3::new(5.0, 0.0, 2.0),
-        length: 1,
-        material: dirt_grass.clone().into(),
-    };
+    for x in 0..=5 {
+        for z in 0..=2 {
+            let invalid_positions = vec![(1, 1), (2, 1), (3, 1), (1, 2)];
     
-    //----------------------------------------------
-    //Mid lair
-    let cube_0_m1_0: Cube = Cube {
-        center: Vec3::new(0.0, -1.0, 0.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
+            if !invalid_positions.contains(&(x, z)) {
+                let cube = Cube {
+                    center: Vec3::new(x as f32, 0.0, z as f32),
+                    length: 1,
+                    material: dirt_grass.clone().into(),
+                };
+                objects.push(Box::new(cube));
+            }
+        }
+    }
+    
 
-    let cube_0_m1_1: Cube = Cube {
-        center: Vec3::new(0.0, -1.0, 1.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
+    for x in 0..=2 {
+        for z in 3..=5 {
+            let cube = Cube {
+                center: Vec3::new(x as f32, 0.0, z as f32),
+                length: 1,
+                material: dirt_grass.clone().into(),
+            };
+            objects.push(Box::new(cube));
+        }
+    }
 
-    let cube_0_m1_2: Cube = Cube {
-        center: Vec3::new(0.0, -1.0, 2.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
+    for x in 0..=5 {
+        for z in 0..=2 {
+            let cube = Cube {
+                center: Vec3::new(x as f32, -1.0, z as f32),
+                length: 1,
+                material: dirt.clone().into(),
+            };
+            objects.push(Box::new(cube));
+        }
+    }
+    
 
-    let cube_0_m1_3: Cube = Cube {
-        center: Vec3::new(0.0, -1.0, 3.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
+    for x in 0..=2 {
+        for z in 3..=5 {
+            let cube = Cube {
+                center: Vec3::new(x as f32, -1.0, z as f32),
+                length: 1,
+                material: dirt.clone().into(),
+            };
+            objects.push(Box::new(cube));
+        }
+    }
 
-    let cube_0_m1_4: Cube = Cube {
-        center: Vec3::new(0.0, -1.0, 4.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
+    for i in 1..=3 {
+        objects.push(Box::new(Cube {
+            center: Vec3::new(1.0, i as f32, 4.0), 
+            length: 1,
+            material: oak_log.clone().into(), 
+        }));
+    }
 
-    let cube_0_m1_5: Cube = Cube {
-        center: Vec3::new(0.0, -1.0, 5.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
+    for x in -1..=3 {
+        for z in 2..=6 {
+            objects.push(Box::new(Cube {
+                center: Vec3::new(x as f32, 3.0, z as f32),
+                length: 1,
+                material: leaf.clone().into(),
+            }));
+    
+            objects.push(Box::new(Cube {
+                center: Vec3::new(x as f32, 4.0, z as f32),
+                length: 1,
+                material: leaf.clone().into(),
+            }));
+        }
+    }
+    
+    for (x, z) in &[
+        (0.0, 3.0), (1.0, 3.0), (2.0, 3.0),
+        (0.0, 5.0), (1.0, 5.0), (2.0, 5.0),
+        (0.0, 4.0), (1.0, 4.0), (2.0, 4.0),
+    ] {
+        objects.push(Box::new(Cube {
+            center: Vec3::new(*x, 5.0, *z),
+            length: 1,
+            material: leaf.clone().into(),
+        }));
+    }
 
-    let cube_1_m1_0: Cube = Cube {
-        center: Vec3::new(1.0, -1.0, 0.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_1_m1_2: Cube = Cube {
-        center: Vec3::new(1.0, -1.0, 2.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-
-    let cube_1_m1_5: Cube = Cube {
-        center: Vec3::new(1.0, -1.0, 5.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_2_m1_0: Cube = Cube {
-        center: Vec3::new(2.0, -1.0, 0.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_2_m1_1: Cube = Cube {
-        center: Vec3::new(2.0, -1.0, 1.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_2_m1_3: Cube = Cube {
-        center: Vec3::new(2.0, -1.0, 3.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_2_m1_4: Cube = Cube {
-        center: Vec3::new(2.0, -1.0, 4.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_2_m1_5: Cube = Cube {
-        center: Vec3::new(2.0, -1.0, 5.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_3_m1_0: Cube = Cube {
-        center: Vec3::new(3.0, -1.0, 0.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_3_m1_1: Cube = Cube {
-        center: Vec3::new(3.0, -1.0, 1.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_3_m1_2: Cube = Cube {
-        center: Vec3::new(3.0, -1.0, 2.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_4_m1_0: Cube = Cube {
-        center: Vec3::new(4.0, -1.0, 0.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_4_m1_2: Cube = Cube {
-        center: Vec3::new(4.0, -1.0, 2.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_5_m1_0: Cube = Cube {
-        center: Vec3::new(5.0, -1.0, 0.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_5_m1_1: Cube = Cube {
-        center: Vec3::new(5.0, -1.0, 1.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cube_5_m1_2: Cube = Cube {
-        center: Vec3::new(5.0, -1.0, 2.0),
-        length: 1,
-        material: dirt.clone().into(),
-    };
-
-    let cobblestone_cube: Cube = Cube {
-        center: Vec3::new(1.0, 0.0, 1.0),
-        length: 1,
-        material: cobblestone.clone().into(),
-    };
-
-    //------------------------
-    //Tree
-
-    let log_1 : Cube = Cube {
-        center: Vec3::new(1.0, 1.0, 4.0),
-        length: 1,
-        material: oak_log.clone().into(),
-    };
-
-    let log_2 : Cube = Cube {
-        center: Vec3::new(1.0, 2.0, 4.0),
-        length: 1,
-        material: oak_log.clone().into(),
-    };
-
-    let log_3 : Cube = Cube {
-        center: Vec3::new(1.0, 3.0, 4.0),
-        length: 1,
-        material: oak_log.clone().into(),
-    };
-
-    let leaf_1: Cube = Cube {
-        center: Vec3::new(-1.0, 3.0, 2.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_1_2: Cube = Cube {
-        center: Vec3::new(-1.0, 4.0, 2.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_2: Cube = Cube {
-        center: Vec3::new(0.0, 3.0, 2.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_2_2: Cube = Cube {
-        center: Vec3::new(0.0, 4.0, 2.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_3: Cube = Cube {
-        center: Vec3::new(1.0, 3.0, 2.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_3_2: Cube = Cube {
-        center: Vec3::new(1.0, 4.0, 2.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_4: Cube = Cube {
-        center: Vec3::new(2.0, 3.0, 2.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_4_2: Cube = Cube {
-        center: Vec3::new(2.0, 4.0, 2.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_5: Cube = Cube {
-        center: Vec3::new(3.0, 3.0, 2.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_5_2: Cube = Cube {
-        center: Vec3::new(3.0, 4.0, 2.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_6: Cube = Cube {
-        center: Vec3::new(-1.0, 3.0, 6.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_6_2: Cube = Cube {
-        center: Vec3::new(-1.0, 4.0, 6.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_7: Cube = Cube {
-        center: Vec3::new(0.0, 3.0, 6.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_7_2: Cube = Cube {
-        center: Vec3::new(0.0, 4.0, 6.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_8: Cube = Cube {
-        center: Vec3::new(1.0, 3.0, 6.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_8_2: Cube = Cube {
-        center: Vec3::new(1.0, 4.0, 6.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_9: Cube = Cube {
-        center: Vec3::new(2.0, 3.0, 6.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_9_2: Cube = Cube {
-        center: Vec3::new(2.0, 4.0, 6.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_10: Cube = Cube {
-        center: Vec3::new(3.0, 3.0, 6.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_10_2: Cube = Cube {
-        center: Vec3::new(3.0, 4.0, 6.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_11: Cube = Cube {
-        center: Vec3::new(-1.0, 3.0, 3.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_11_2: Cube = Cube {
-        center: Vec3::new(-1.0, 4.0, 3.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_12: Cube = Cube {
-        center: Vec3::new(-1.0, 3.0, 4.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_12_2: Cube = Cube {
-        center: Vec3::new(-1.0, 4.0, 4.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_13: Cube = Cube {
-        center: Vec3::new(-1.0, 3.0, 5.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_13_2: Cube = Cube {
-        center: Vec3::new(-1.0, 4.0, 5.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_14: Cube = Cube {
-        center: Vec3::new(3.0, 3.0, 3.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_14_2: Cube = Cube {
-        center: Vec3::new(3.0, 4.0, 3.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_15: Cube = Cube {
-        center: Vec3::new(3.0, 3.0, 4.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_15_2: Cube = Cube {
-        center: Vec3::new(3.0, 4.0, 4.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-    let leaf_16: Cube = Cube {
-        center: Vec3::new(3.0, 3.0, 5.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_16_2: Cube = Cube {
-        center: Vec3::new(3.0, 4.0, 5.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_17: Cube = Cube {
-        center: Vec3::new(0.0, 5.0, 3.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_18: Cube = Cube {
-        center: Vec3::new(1.0, 5.0, 3.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_19: Cube = Cube {
-        center: Vec3::new(2.0, 5.0, 3.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_20: Cube = Cube {
-        center: Vec3::new(0.0, 5.0, 5.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_21: Cube = Cube {
-        center: Vec3::new(1.0, 5.0, 5.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_22: Cube = Cube {
-        center: Vec3::new(2.0, 5.0, 5.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_23: Cube = Cube {
-        center: Vec3::new(0.0, 5.0, 4.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_24: Cube = Cube {
-        center: Vec3::new(1.0, 5.0, 4.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let leaf_25: Cube = Cube {
-        center: Vec3::new(2.0, 5.0, 4.0),
-        length: 1,
-        material: leaf.clone().into(),
-    };
-
-    let lava_cube: Cube = Cube {
+    objects.push(Box::new(Cube {
         center: Vec3::new(1.0, 0.0, 2.0),
         length: 1,
         material: lava.clone().into(),
-    };
+    }));
 
-    let water_cube: Cube = Cube {
+    objects.push(Box::new(Cube {
         center: Vec3::new(3.0, 0.0, 1.0),
         length: 1,
         material: water.clone().into(),
-    };
+    }));
 
-    let water_cube2: Cube = Cube {
+    objects.push(Box::new(Cube {
         center: Vec3::new(2.0, 0.0, 1.0),
         length: 1,
         material: water.clone().into(),
-    };
+    }));
 
-
-    let chest : Cube = Cube {
+    objects.push(Box::new(Cube {
         center: Vec3::new(4.0, 1.0, 1.0),
         length: 1,
         material: chest_tetxure.clone().into(),
-    };
-
-    let objects: Vec<&dyn Renderable> = vec![
-        &cube_0_0_0,
-        &cube_0_0_1,
-        &cube_0_0_2,
-        &cube_0_0_3,
-        &cube_0_0_4,
-        &cube_0_0_5,
-        &cube_1_0_0,
-        &cube_1_0_3,
-        &cube_1_0_4,
-        &cube_1_0_5,
-        &cube_2_0_0,
-        &cube_2_0_2,
-        &cube_2_0_3,
-        &cube_2_0_4,
-        &cube_2_0_5,
-        &cube_3_0_0,
-        &cube_3_0_2,
-        &cube_4_0_0,
-        &cube_4_0_1,
-        &cube_4_0_2,
-        &cube_5_0_0,
-        &cube_5_0_1,
-        &cube_5_0_2,
-        &cube_0_m1_0,
-        &cube_0_m1_1,
-        &cube_0_m1_2,
-        &cube_0_m1_3,
-        &cube_0_m1_4,
-        &cube_0_m1_5,
-        &cube_1_m1_0,
-        &cube_1_m1_5,
-        &cube_2_m1_0,
-        &cube_2_m1_3,
-        &cube_2_m1_3,
-        &cube_2_m1_4,
-        &cube_2_m1_5,
-        &cube_3_m1_0,
-        &cube_3_m1_2,
-        &cube_4_m1_0,
-        &cube_4_m1_2,
-        &cube_5_m1_0,
-        &cube_5_m1_1,
-        &cube_5_m1_2,
-        &cube_1_m1_2,
-        &cube_2_m1_1,
-        &cube_3_m1_1,
-        &cobblestone_cube,
-        &log_1,
-        &log_2,
-        &log_3,
-        &leaf_1,
-        &leaf_1_2,
-        &leaf_2,
-        &leaf_2_2,
-        &leaf_3,
-        &leaf_3_2,
-        &leaf_4,
-        &leaf_4_2,
-        &leaf_5,
-        &leaf_5_2,
-        &leaf_6,
-        &leaf_6_2,
-        &leaf_7,
-        &leaf_7_2,
-        &leaf_8,
-        &leaf_8_2,
-        &leaf_9,
-        &leaf_9_2,
-        &leaf_10,
-        &leaf_10_2,
-        &leaf_11,
-        &leaf_11_2,
-        &leaf_12,
-        &leaf_12_2,
-        &leaf_13,
-        &leaf_13_2,
-        &leaf_10,
-        &leaf_10_2,
-        &leaf_11,
-        &leaf_11_2,
-        &leaf_12,
-        &leaf_12_2,
-        &leaf_13,
-        &leaf_13_2,
-        &leaf_14,
-        &leaf_14_2,
-        &leaf_15,
-        &leaf_15_2,
-        &leaf_16,
-        &leaf_16_2,
-        &leaf_17,
-        &leaf_18,
-        &leaf_19,
-        &leaf_20,
-        &leaf_21,
-        &leaf_22,
-        &leaf_23,
-        &leaf_24,
-        &leaf_25,
-        &water_cube,
-        &water_cube2,
-        &lava_cube,
-        &chest,
-    ];
+    }));
+    
+    objects.push(Box::new(Cube {
+        center: Vec3::new(1.0, 0.0, 1.0),
+        length: 1,
+        material: cobblestone.clone().into(),
+    }));
 
     let mut camera = Camera {
         eye: vec3(0.0, 0.0, 10.0),    // Posición inicial de la cámara

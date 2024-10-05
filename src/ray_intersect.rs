@@ -6,7 +6,7 @@ use crate::figures::Cube;
 use crate::material::Material;
 use crate::intersect::{Intersect, RayIntersect}; // Importa Intersect y RayIntersect
 
-pub trait Renderable: Send {
+pub trait Renderable: Send + Sync{
     fn ray_intersect(&self, ray_origin: &Vec3, ray_direction: &Vec3) -> Intersect;
     fn get_normal(&self, point: &Vec3) -> Vec3;
 }
