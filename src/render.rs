@@ -11,11 +11,12 @@ use std::ops::Mul;
 use crate::camera::Camera;
 use crate::ray_intersect::Renderable;
 use crate::texture::Texture;
+use rayon::iter::IntoParallelIterator;
 
 pub fn render(
-    framebuffer: &mut Framebuffer, 
-    objects: &[Box<dyn Renderable>],  // Aceptar Box como antes
-    camera: &Camera, 
+    framebuffer: &mut Framebuffer,
+    objects: &[Box<dyn Renderable>],
+    camera: &Camera,
     light: &Light,
 ) {
     let width = framebuffer.get_width() as f32;
@@ -23,32 +24,44 @@ pub fn render(
     let aspect_ratio = width / height;
 
     let mut z_buffer = vec![f32::INFINITY; (width * height) as usize];
+    let mut pixel_colors = vec![(Color::new(0, 0, 0), f32::INFINITY); (width * height) as usize];
 
-    // Convertir Vec<Box<dyn Renderable>> a Vec<&dyn Renderable>
-    let object_refs: Vec<&dyn Renderable> = objects.iter().map(|obj| obj.as_ref()).collect();
+    let norm_x = 2.0 / width;
+    let norm_y = 2.0 / height;
 
-    for y in 0..framebuffer.get_height() {
-        for x in 0..framebuffer.get_width() {
-            let screen_x = (2.0 * x as f32) / width - 1.0;
-            let screen_y = -(2.0 * y as f32) / height + 1.0;
-            let screen_x = screen_x * aspect_ratio;
-            let ray_camera_space = Vec3::new(screen_x, screen_y, -1.0).normalize();
-            let ray_direction = camera.basis_change(&ray_camera_space);
-            let ray_origin = camera.eye;
+    // Usar iteradores paralelos para procesar cada píxel
+    (0..(width * height) as usize).into_iter().for_each(|pixel_index| {
+        let y = pixel_index / width as usize; 
+        let x = pixel_index % width as usize; 
 
-            // Pasar las referencias correctas a cast_ray
-            let (pixel_color, z) = cast_ray(&ray_origin, &ray_direction, &object_refs, light, 5);
+        let screen_x = (norm_x * x as f32) - 1.0;
+        let screen_y = -((norm_y * y as f32) - 1.0) * aspect_ratio;
 
-            let pixel_index = (y as usize * width as usize) + (x as usize);
+        let ray_camera_space = Vec3::new(screen_x, screen_y, -1.0).normalize();
+        let ray_direction = camera.basis_change(&ray_camera_space);
+        let ray_origin = camera.eye;
 
-            if z < z_buffer[pixel_index] {
-                framebuffer.set_current_color(pixel_color);
-                framebuffer.point(x.try_into().unwrap(), y.try_into().unwrap());
-                z_buffer[pixel_index] = z;
-            }
+        // Pasar referencias directamente
+        let object_refs: Vec<&dyn Renderable> = objects.iter().map(|obj| obj.as_ref()).collect();
+        let (pixel_color, z) = cast_ray(&ray_origin, &ray_direction, &object_refs, light, 5);
+
+        // Actualizar el vector temporal de colores
+        pixel_colors[pixel_index] = (pixel_color, z);
+    });
+
+    // Actualizar el framebuffer y el z_buffer en la segunda pasada
+    for pixel_index in 0..(width * height) as usize {
+        let (pixel_color, z) = pixel_colors[pixel_index];
+        if z < z_buffer[pixel_index] {
+            let y = pixel_index / width as usize; 
+            let x = pixel_index % width as usize; 
+            framebuffer.set_current_color(pixel_color);
+            framebuffer.point(x.try_into().unwrap(), y.try_into().unwrap());
+            z_buffer[pixel_index] = z;
         }
     }
 }
+
 
 fn cast_ray(
     ray_origin: &Vec3, 
