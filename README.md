@@ -1,3 +1,4 @@
 # 3D-CAMERA
 
-[Uploading Grabación de pantalla desde 2024-10-05 08-39-19.webm…]()
+
+[Minecraft Diorama](https://github.com/user-attachments/assets/44e8d933-ccc5-48b8-94f7-8cf1b1dd9631)
